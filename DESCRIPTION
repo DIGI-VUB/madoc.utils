@@ -1,0 +1,18 @@
+Package: madoc.utils
+Type: Package
+Title: Tools for interacting with Madoc
+Version: 0.1.0
+Authors@R: c(
+    person('Jan', 'Wijffels', role = c('aut', 'cre', 'cph'), email = 'jan.wijffels@vub.be'), 
+    person('Vrije Universiteit Brussel - DIGI: Brussels Platform for Digital Humanities', role = 'cph'))
+Maintainer: Jan Wijffels <jan.wijffels@vub.be>
+Description: Utilities to work with 'Madoc' <https://github.com/digirati-co-uk/madoc-platform>.
+    'Madoc' is an 'Omeka S' based platform for the display, enrichment, and curation of digital objects in  'IIIF' format.
+    The platform can be used for all kinds of crowdsourcing activities in the domain of digital humanities.
+URL: https://github.com/DIGI-VUB/madoc.utils
+Imports:
+    xml2,
+    magick,
+    data.table
+License: MIT + file LICENSE
+RoxygenNote: 7.1.1
