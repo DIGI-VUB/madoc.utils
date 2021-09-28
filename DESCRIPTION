@@ -12,7 +12,10 @@ Description: Utilities to work with 'Madoc' <https://github.com/digirati-co-uk/m
 URL: https://github.com/DIGI-VUB/madoc.utils
 Imports:
     xml2,
+    jsonlite,
+    httr,
     magick,
-    data.table
+    data.table (>= 1.11.0),
+    udpipe (>= 0.8.5)
 License: MIT + file LICENSE
 RoxygenNote: 7.1.1

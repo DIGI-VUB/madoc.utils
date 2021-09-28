@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alto xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://www.loc.gov/standards/alto/ns-v2#"
+      xmlns:page="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"
+      xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v2# http://www.loc.gov/standards/alto/alto.xsd">
+   <Description>
+      <MeasurementUnit>pixel</MeasurementUnit>
+      <OCRProcessing ID="IdOcr">
+         <ocrProcessingStep>
+            <processingDateTime>2021-02-11T12:23:21.433+01:00</processingDateTime>
+            <processingSoftware>
+               <softwareCreator>READ COOP</softwareCreator>
+               <softwareName>Transkribus</softwareName>
+            </processingSoftware>
+         </ocrProcessingStep>
+      </OCRProcessing>
+   </Description>
+   <Layout>
+      <Page ID="Page1" PHYSICAL_IMG_NR="1" HEIGHT="2336" WIDTH="1417">
+         <TopMargin HEIGHT="0" WIDTH="1417" VPOS="0" HPOS="0"/>
+         <LeftMargin HEIGHT="2336" WIDTH="0" VPOS="0" HPOS="0"/>
+         <RightMargin HEIGHT="2336" WIDTH="0" VPOS="0" HPOS="1417"/>
+         <BottomMargin HEIGHT="0" WIDTH="1417" VPOS="2336" HPOS="0"/>
+         <PrintSpace HEIGHT="2336" WIDTH="1417" VPOS="0" HPOS="0">
+            <TextBlock ID="region_1605799388143_1146"
+                       HEIGHT="250"
+                       WIDTH="237"
+                       VPOS="184"
+                       HPOS="68">
+               <Shape>
+                  <Polygon POINTS="68,184 305,184 305,434 68,434"/>
+               </Shape>
+               <TextLine ID="line_1606232885503_293"
+                         BASELINE="263"
+                         HEIGHT="58"
+                         WIDTH="206"
+                         VPOS="205"
+                         HPOS="84">
+                  <String ID="string_line_1606232885503_293"
+                          HEIGHT="58"
+                          WIDTH="206"
+                          VPOS="205"
+                          HPOS="84"
+                          CONTENT="VERHOOR"/>
+               </TextLine>
+               <TextLine ID="line_1606232888282_298"
+                         BASELINE="298"
+                         HEIGHT="62"
+                         WIDTH="90"
+                         VPOS="236"
+                         HPOS="138">
+                  <String ID="string_line_1606232888282_298"
+                          HEIGHT="62"
+                          WIDTH="90"
+                          VPOS="236"
+                          HPOS="138"
+                          CONTENT="VAN"/>
+               </TextLine>
+               <TextLine ID="line_1606232892293_303"
+                         BASELINE="353"
+                         HEIGHT="64"
+                         WIDTH="227"
+                         VPOS="289"
+                         HPOS="78">
+                  <String ID="string_line_1606232892293_303"
+                          HEIGHT="64"
+                          WIDTH="227"
+                          VPOS="289"
+                          HPOS="78"
+                          CONTENT="GETUYGEN."/>
+               </TextLine>
+            </TextBlock>
+            <TextBlock ID="region_1605799396353_1149"
+                       HEIGHT="2144"
+                       WIDTH="1254"
+                       VPOS="167"
+                       HPOS="150">
+               <Shape>
+                  <Polygon POINTS="150,2311 1404,2311 1404,167 150,167"/>
+               </Shape>
+               <TextLine ID="line_1605799409723_1152"
+                         BASELINE="278"
+                         HEIGHT="68"
+                         WIDTH="943"
+                         VPOS="210"
+                         HPOS="349">
+                  <String ID="string_line_1605799409723_1152"
+                          HEIGHT="68"
+                          WIDTH="943"
+                          VPOS="210"
+                          HPOS="349"
+                          CONTENT="Ten jaere achttien honderd veertig, den negenden"/>
+               </TextLine>
+               <TextLine ID="line_1605799412266_1157"
+                         BASELINE="338"
+                         HEIGHT="83"
+                         WIDTH="934"
+                         VPOS="255"
+                         HPOS="353">
+                  <String ID="string_line_1605799412266_1157"
+                          HEIGHT="83"
+                          WIDTH="934"
+                          VPOS="255"
+                          HPOS="353"
+                          CONTENT="julius voor ons Rechter van"/>
+               </TextLine>
+               <TextLine ID="line_1605799415141_1162"
+                         BASELINE="381"
+                         HEIGHT="74"
+                         WIDTH="923"
+                         VPOS="307"
+                         HPOS="334">
+                  <String ID="string_line_1605799415141_1162"
+                          HEIGHT="74"
+                          WIDTH="923"
+                          VPOS="307"
+                          HPOS="334"
+                          CONTENT="Instructie by de Rechtbank van eersten Aenleg van het Arron-"/>
+               </TextLine>
+               <TextLine ID="line_1605799417422_1167"
+                         BASELINE="436"
+                         HEIGHT="79"
+                         WIDTH="969"
+                         VPOS="357"
+                         HPOS="321">
+                  <String ID="string_line_1605799417422_1167"
+                          HEIGHT="79"
+                          WIDTH="969"
+                          VPOS="357"
+                          HPOS="321"
+                          CONTENT="dissement Brugge, geassisteerd door onzen Greffier, in ons"/>
+               </TextLine>
+               <TextLine ID="line_1605799419685_1172"
+                         BASELINE="479"
+                         HEIGHT="59"
+                         WIDTH="952"
+                         VPOS="420"
+                         HPOS="317">
+                  <String ID="string_line_1605799419685_1172"
+                          HEIGHT="59"
+                          WIDTH="952"
+                          VPOS="420"
+                          HPOS="317"
+                          CONTENT="Kabinet, ten Paleyse van Justitie, te Brugge, is verschenen"/>
+               </TextLine>
+               <TextLine ID="line_1605799422960_1177"
+                         BASELINE="535"
+                         HEIGHT="71"
+                         WIDTH="972"
+                         VPOS="464"
+                         HPOS="303">
+                  <String ID="string_line_1605799422960_1177"
+                          HEIGHT="71"
+                          WIDTH="972"
+                          VPOS="464"
+                          HPOS="303"
+                          CONTENT="ten eynde getuygenis te geven in de zaek vervolgd ten laste"/>
+               </TextLine>
+               <TextLine ID="line_1605799425520_1182"
+                         BASELINE="570"
+                         HEIGHT="52"
+                         WIDTH="701"
+                         VPOS="518"
+                         HPOS="317">
+                  <String ID="string_line_1605799425520_1182"
+                          HEIGHT="52"
+                          WIDTH="701"
+                          VPOS="518"
+                          HPOS="317"
+                          CONTENT="van Jacobus Reckhem"/>
+               </TextLine>
+               <TextLine ID="line_1605799427993_1187"
+                         BASELINE="671"
+                         HEIGHT="93"
+                         WIDTH="1033"
+                         VPOS="578"
+                         HPOS="293">
+                  <String ID="string_line_1605799427993_1187"
+                          HEIGHT="93"
+                          WIDTH="1033"
+                          VPOS="578"
+                          HPOS="293"
+                          CONTENT="Joannes Maertens, oud 38 jaerne"/>
+               </TextLine>
+               <TextLine ID="line_1605799430125_1192"
+                         BASELINE="702"
+                         HEIGHT="67"
+                         WIDTH="791"
+                         VPOS="635"
+                         HPOS="284">
+                  <String ID="string_line_1605799430125_1192"
+                          HEIGHT="67"
+                          WIDTH="791"
+                          VPOS="635"
+                          HPOS="284"
+                          CONTENT="landbouwer, te Lichtervelde"/>
+               </TextLine>
+               <TextLine ID="line_1605799432426_1197"
+                         BASELINE="867"
+                         HEIGHT="83"
+                         WIDTH="1013"
+                         VPOS="784"
+                         HPOS="275">
+                  <String ID="string_line_1605799432426_1197"
+                          HEIGHT="83"
+                          WIDTH="1013"
+                          VPOS="784"
+                          HPOS="275"
+                          CONTENT="de welke na den dagvaerd aen hem afgegeven den"/>
+               </TextLine>
+               <TextLine ID="line_1605799435158_1202"
+                         BASELINE="907"
+                         HEIGHT="75"
+                         WIDTH="1001"
+                         VPOS="832"
+                         HPOS="267">
+                  <String ID="string_line_1605799435158_1202"
+                          HEIGHT="75"
+                          WIDTH="1001"
+                          VPOS="832"
+                          HPOS="267"
+                          CONTENT="zesden dezer maend, vertoond te hebben en"/>
+               </TextLine>
+               <TextLine ID="line_1605799438165_1207"
+                         BASELINE="953"
+                         HEIGHT="67"
+                         WIDTH="986"
+                         VPOS="886"
+                         HPOS="260">
+                  <String ID="string_line_1605799438165_1207"
+                          HEIGHT="67"
+                          WIDTH="986"
+                          VPOS="886"
+                          HPOS="260"
+                          CONTENT="na alvorens den eed te hebben gedaen in onze handen,"/>
+               </TextLine>
+               <TextLine ID="line_1605799440773_1212"
+                         BASELINE="1012"
+                         HEIGHT="77"
+                         WIDTH="980"
+                         VPOS="935"
+                         HPOS="303">
+                  <String ID="string_line_1605799440773_1212"
+                          HEIGHT="77"
+                          WIDTH="980"
+                          VPOS="935"
+                          HPOS="303"
+                          CONTENT="van geheel de waerheyd en niet anders dan de waerheyd te "/>
+               </TextLine>
+               <TextLine ID="line_1605799443206_1217"
+                         BASELINE="1053"
+                         HEIGHT="66"
+                         WIDTH="950"
+                         VPOS="987"
+                         HPOS="301">
+                  <String ID="string_line_1605799443206_1217"
+                          HEIGHT="66"
+                          WIDTH="950"
+                          VPOS="987"
+                          HPOS="301"
+                          CONTENT="zeggen, byvoegende geen bloedverwant, maegschap noch in "/>
+               </TextLine>
+               <TextLine ID="line_1605799445610_1222"
+                         BASELINE="1102"
+                         HEIGHT="63"
+                         WIDTH="819"
+                         VPOS="1039"
+                         HPOS="297">
+                  <String ID="string_line_1605799445610_1222"
+                          HEIGHT="63"
+                          WIDTH="819"
+                          VPOS="1039"
+                          HPOS="297"
+                          CONTENT="dienst te zyn van de aengeklaegde, heeft getuygt op "/>
+               </TextLine>
+               <TextLine ID="line_1605799448479_1227"
+                         BASELINE="1148"
+                         HEIGHT="63"
+                         WIDTH="997"
+                         VPOS="1085"
+                         HPOS="295">
+                  <String ID="string_line_1605799448479_1227"
+                          HEIGHT="63"
+                          WIDTH="997"
+                          VPOS="1085"
+                          HPOS="295"
+                          CONTENT="zestienden juny lest s’avonds kwart"/>
+               </TextLine>
+               <TextLine ID="line_1605799451460_1232"
+                         BASELINE="1195"
+                         HEIGHT="60"
+                         WIDTH="1027"
+                         VPOS="1135"
+                         HPOS="284">
+                  <String ID="string_line_1605799451460_1232"
+                          HEIGHT="60"
+                          WIDTH="1027"
+                          VPOS="1135"
+                          HPOS="284"
+                          CONTENT="naer acht ueren, hebbe ik ontmoet Pieter"/>
+               </TextLine>
+               <TextLine ID="line_1605799455061_1237"
+                         BASELINE="1243"
+                         HEIGHT="63"
+                         WIDTH="1054"
+                         VPOS="1180"
+                         HPOS="270">
+                  <String ID="string_line_1605799455061_1237"
+                          HEIGHT="63"
+                          WIDTH="1054"
+                          VPOS="1180"
+                          HPOS="270"
+                          CONTENT="Kwakkelbeen die afkwam van den kant"/>
+               </TextLine>
+               <TextLine ID="line_1605799458054_1242"
+                         BASELINE="1293"
+                         HEIGHT="67"
+                         WIDTH="1064"
+                         VPOS="1226"
+                         HPOS="268">
+                  <String ID="string_line_1605799458054_1242"
+                          HEIGHT="67"
+                          WIDTH="1064"
+                          VPOS="1226"
+                          HPOS="268"
+                          CONTENT="van zyn huys en op ging al de kant"/>
+               </TextLine>
+               <TextLine ID="line_1605799460995_1247"
+                         BASELINE="1349"
+                         HEIGHT="54"
+                         WIDTH="1044"
+                         VPOS="1295"
+                         HPOS="286">
+                  <String ID="string_line_1605799460995_1247"
+                          HEIGHT="54"
+                          WIDTH="1044"
+                          VPOS="1295"
+                          HPOS="286"
+                          CONTENT="van het dorp van Lichtervelde en ook"/>
+               </TextLine>
+               <TextLine ID="line_1605799464315_1252"
+                         BASELINE="1395"
+                         HEIGHT="59"
+                         WIDTH="970"
+                         VPOS="1336"
+                         HPOS="299">
+                  <String ID="string_line_1605799464315_1252"
+                          HEIGHT="59"
+                          WIDTH="970"
+                          VPOS="1336"
+                          HPOS="299"
+                          CONTENT="ten zelven tyde al de kant der woonste"/>
+               </TextLine>
+               <TextLine ID="line_1605799467512_1257"
+                         BASELINE="1447"
+                         HEIGHT="52"
+                         WIDTH="1022"
+                         VPOS="1395"
+                         HPOS="293">
+                  <String ID="string_line_1605799467512_1257"
+                          HEIGHT="52"
+                          WIDTH="1022"
+                          VPOS="1395"
+                          HPOS="293"
+                          CONTENT="van Franciscus Decuyper. Op den vrydag"/>
+               </TextLine>
+               <TextLine ID="line_1605799470716_1262"
+                         BASELINE="1514"
+                         HEIGHT="82"
+                         WIDTH="1027"
+                         VPOS="1432"
+                         HPOS="281">
+                  <String ID="string_line_1605799470716_1262"
+                          HEIGHT="82"
+                          WIDTH="1027"
+                          VPOS="1432"
+                          HPOS="281"
+                          CONTENT="opvolgende, zynde op myn land tydens "/>
+               </TextLine>
+               <TextLine ID="line_1605799473982_1267"
+                         BASELINE="1555"
+                         HEIGHT="61"
+                         WIDTH="1048"
+                         VPOS="1494"
+                         HPOS="295">
+                  <String ID="string_line_1605799473982_1267"
+                          HEIGHT="61"
+                          WIDTH="1048"
+                          VPOS="1494"
+                          HPOS="295"
+                          CONTENT="de moeder van gemelden Pieter Kwakkelbeen"/>
+               </TextLine>
+               <TextLine ID="line_1605799477993_1272"
+                         BASELINE="1607"
+                         HEIGHT="74"
+                         WIDTH="1073"
+                         VPOS="1533"
+                         HPOS="272">
+                  <String ID="string_line_1605799477993_1272"
+                          HEIGHT="74"
+                          WIDTH="1073"
+                          VPOS="1533"
+                          HPOS="272"
+                          CONTENT="aldaer passeerde, ik sprak haer aen opzich-"/>
+               </TextLine>
+               <TextLine ID="line_1605799481630_1277"
+                         BASELINE="1666"
+                         HEIGHT="72"
+                         WIDTH="1146"
+                         VPOS="1594"
+                         HPOS="218">
+                  <String ID="string_line_1605799481630_1277"
+                          HEIGHT="72"
+                          WIDTH="1146"
+                          VPOS="1594"
+                          HPOS="218"
+                          CONTENT="telyk de aenhouding van Jacobus Riekhem "/>
+               </TextLine>
+               <TextLine ID="line_1605799484786_1282"
+                         BASELINE="1713"
+                         HEIGHT="65"
+                         WIDTH="1099"
+                         VPOS="1648"
+                         HPOS="261">
+                  <String ID="string_line_1605799484786_1282"
+                          HEIGHT="65"
+                          WIDTH="1099"
+                          VPOS="1648"
+                          HPOS="261"
+                          CONTENT="en deze zeyde mij dat waerschynlyk die"/>
+               </TextLine>
+               <TextLine ID="line_1605799487948_1287"
+                         BASELINE="1780"
+                         HEIGHT="84"
+                         WIDTH="1094"
+                         VPOS="1696"
+                         HPOS="253">
+                  <String ID="string_line_1605799487948_1287"
+                          HEIGHT="84"
+                          WIDTH="1094"
+                          VPOS="1696"
+                          HPOS="253"
+                          CONTENT="diefte door Riekhem niet alleen gepleegd"/>
+               </TextLine>
+               <TextLine ID="line_1605799497997_1293"
+                         BASELINE="1828"
+                         HEIGHT="78"
+                         WIDTH="1071"
+                         VPOS="1750"
+                         HPOS="296">
+                  <String ID="string_line_1605799497997_1293"
+                          HEIGHT="78"
+                          WIDTH="1071"
+                          VPOS="1750"
+                          HPOS="296"
+                          CONTENT="was geweest, dat waerschynlyk haren"/>
+               </TextLine>
+               <TextLine ID="line_1605799500789_1298"
+                         BASELINE="1879"
+                         HEIGHT="73"
+                         WIDTH="1074"
+                         VPOS="1806"
+                         HPOS="301">
+                  <String ID="string_line_1605799500789_1298"
+                          HEIGHT="73"
+                          WIDTH="1074"
+                          VPOS="1806"
+                          HPOS="301"
+                          CONTENT="zoon Pieter Kwakkelbeen, Ferdinand Lannoo"/>
+               </TextLine>
+               <TextLine ID="line_1605799504150_1303"
+                         BASELINE="1934"
+                         HEIGHT="76"
+                         WIDTH="1069"
+                         VPOS="1858"
+                         HPOS="314">
+                  <String ID="string_line_1605799504150_1303"
+                          HEIGHT="76"
+                          WIDTH="1069"
+                          VPOS="1858"
+                          HPOS="314"
+                          CONTENT="en Karel Kwartier, Reckhem medegeholpen"/>
+               </TextLine>
+               <TextLine ID="line_1605799506733_1308"
+                         BASELINE="1988"
+                         HEIGHT="88"
+                         WIDTH="1052"
+                         VPOS="1900"
+                         HPOS="310">
+                  <String ID="string_line_1605799506733_1308"
+                          HEIGHT="88"
+                          WIDTH="1052"
+                          VPOS="1900"
+                          HPOS="310"
+                          CONTENT="hadden; dat haren zoon Franciscus in den"/>
+               </TextLine>
+               <TextLine ID="line_1605799509311_1313"
+                         BASELINE="2037"
+                         HEIGHT="86"
+                         WIDTH="1102"
+                         VPOS="1951"
+                         HPOS="270">
+                  <String ID="string_line_1605799509311_1313"
+                          HEIGHT="86"
+                          WIDTH="1102"
+                          VPOS="1951"
+                          HPOS="270"
+                          CONTENT="avond van zestienden junij Jacobus Reckhem"/>
+               </TextLine>
+               <TextLine ID="line_1605799512292_1318"
+                         BASELINE="2100"
+                         HEIGHT="94"
+                         WIDTH="1073"
+                         VPOS="2006"
+                         HPOS="284">
+                  <String ID="string_line_1605799512292_1318"
+                          HEIGHT="94"
+                          WIDTH="1073"
+                          VPOS="2006"
+                          HPOS="284"
+                          CONTENT="en Pieter Kwakkelbeen ontmoet had opgaende"/>
+               </TextLine>
+               <TextLine ID="line_1605799515365_1323"
+                         BASELINE="2153"
+                         HEIGHT="99"
+                         WIDTH="1087"
+                         VPOS="2054"
+                         HPOS="282">
+                  <String ID="string_line_1605799515365_1323"
+                          HEIGHT="99"
+                          WIDTH="1087"
+                          VPOS="2054"
+                          HPOS="282"
+                          CONTENT="al de kant van het dorp en dat op het dorp"/>
+               </TextLine>
+               <TextLine ID="line_1606233279699_348"
+                         BASELINE="2261"
+                         HEIGHT="80"
+                         WIDTH="319"
+                         VPOS="2181"
+                         HPOS="315">
+                  <String ID="string_line_1606233279699_348"
+                          HEIGHT="80"
+                          WIDTH="319"
+                          VPOS="2181"
+                          HPOS="315"
+                          CONTENT="L Simon"/>
+               </TextLine>
+               <TextLine ID="line_1605799520589_1333"
+                         BASELINE="2252"
+                         HEIGHT="51"
+                         WIDTH="490"
+                         VPOS="2201"
+                         HPOS="799">
+                  <String ID="string_line_1605799520589_1333"
+                          HEIGHT="51"
+                          WIDTH="490"
+                          VPOS="2201"
+                          HPOS="799"
+                          CONTENT="C Van Caloen"/>
+               </TextLine>
+            </TextBlock>
+         </PrintSpace>
+      </Page>
+   </Layout>
+</alto>
