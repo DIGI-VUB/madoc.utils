@@ -2,7 +2,7 @@
 
 This repository contains an R package for extracting data from Madoc.
 
->> 'Madoc' is an 'Omeka S' based platform for the display, enrichment, and curation of digital objects in  'IIIF' format. The platform can be used for all kinds of crowdsourcing activities in the domain of digital humanities.
+> 'Madoc' is an 'Omeka S' based platform for the display, enrichment, and curation of digital objects in  'IIIF' format. The platform can be used for all kinds of crowdsourcing activities in the domain of digital humanities.
 
 ### Installation
 
@@ -46,4 +46,4 @@ image_read(url)
 
 By DIGI: Brussels Platform for Digital Humanities: https://digi.research.vub.be
 
-![](vignettes/logo.png)
+![](tools/logo.png)
