@@ -96,7 +96,7 @@ url            <- unlist(x$image_url[[1]])
 image_read(url)
 ```
 
-<img src="tools/img-example-1.png" width="2721" />
+<img src="tools/img-example-1.png" width="1545" />
 
 ### DIGI
 
