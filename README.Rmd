@@ -22,7 +22,7 @@ This repository contains an R package for extracting data from Madoc.
 
 - Get transcriptions
 
-```{r}
+```{r, data-extraction}
 library(madoc.utils)
 site         <- "https://www.madoc.ugent.be/s/brugse-vrije"
 
@@ -32,26 +32,51 @@ projects     <- subset(projects, slug == "brugse-vrije-gebruikerstest")
 projects
 
 ## Get all manifests and canvasses of a collection
-manifests    <- madoc_collection(site = site, id = projects$collection_id)
-head(manifests, n = 3)
-manifests    <- head(manifests, 10)
-canvasses    <- madoc_manifest(site = site,   id = manifests$manifest_id)
-str(canvasses)
+manifests <- list()
+manifests <- madoc_collection(site = site, id = projects$collection_id, tidy_metadata = TRUE)
+head(manifests)
+canvasses <- madoc_manifest(site = site,   id = manifests$manifest_id)
+head(manifests)
 
 ## Get annotations on a canvas or several canvasses
 annotations  <- madoc_canvas_model(site = site, id = canvasses$canvas_id)
-head(subset(annotations, nchar(value) > 0))
+anno         <- subset(annotations, nchar(value) > 0)
+str(anno)
+
+## Get URL of canvas for which volunteers performed an annotation
+images <- madoc_canvas_image(site = site, id = sort(unique(anno$canvas_id)))
+images <- merge(images, canvasses, by = "canvas_id")
+images <- images[, c("manifest_id", "canvas_id", "height", "width", "image_url")]
+head(images)
+```
+
+- Combine annotations with image url and manifest metadata
+
+```{r, data-export}
+anno <- merge(images, anno, by = "canvas_id", all.x = TRUE, all.y = FALSE)
+anno <- merge(anno, manifests, by = "manifest_id", all.x = TRUE, all.y = FALSE, suffixes = c("", "_manifest"))
+anno <- subset(anno, !is.na(value) & nchar(value) > 0)
+str(anno)
+
+library(writexl)
+write_xlsx(anno, "brugse-vrije.xlsx")
 ```
 
 - See the image of a canvas
 
 ```{r, img-example}
 library(magick)
-canvasses_urls <- madoc_canvas_image(site, id = sample(canvasses$canvas_id, size = 10))
-x              <- merge(canvasses, canvasses_urls, by = "canvas_id")
-url            <- unlist(x$image_url[[1]])
-image_read(url)
+url  <- anno$image_url[[1]]
+url
+img  <- image_read(url)
+img  <- image_resize(img, "x800")
+txt  <- anno$value[[1]]
+
+trans <- image_blank(width = image_info(img)$width, height = image_info(img)$height)
+trans <- image_annotate(trans, txt, size = 10, color = "green")
+image_append(c(img, trans))
 ```
+
 
 ### DIGI
 
