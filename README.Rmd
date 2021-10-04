@@ -34,20 +34,16 @@ projects
 ## Get all manifests and canvasses of a collection
 manifests <- list()
 manifests <- madoc_collection(site = site, id = projects$collection_id, tidy_metadata = TRUE)
-head(manifests)
 canvasses <- madoc_manifest(site = site,   id = manifests$manifest_id)
-head(manifests)
 
 ## Get annotations on a canvas or several canvasses
 annotations  <- madoc_canvas_model(site = site, id = canvasses$canvas_id)
 anno         <- subset(annotations, nchar(value) > 0)
-str(anno)
 
 ## Get URL of canvas for which volunteers performed an annotation
 images <- madoc_canvas_image(site = site, id = sort(unique(anno$canvas_id)))
 images <- merge(images, canvasses, by = "canvas_id")
 images <- images[, c("manifest_id", "canvas_id", "height", "width", "image_url")]
-head(images)
 ```
 
 - Combine annotations with image url and manifest metadata
