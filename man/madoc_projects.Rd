@@ -21,5 +21,7 @@ TODO: perform pagination
 }
 \examples{
 projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+\donttest{
 projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije-gebruikerstest")
+}
 }

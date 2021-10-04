@@ -7,7 +7,9 @@
 #' @note TODO: perform pagination
 #' @examples 
 #' projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+#' \donttest{
 #' projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije-gebruikerstest")
+#' }
 madoc_projects <- function(site){
   ## Get the projects
   msg      <- GET(sprintf("%s/madoc/api/projects", site), encode = "json")
@@ -122,6 +124,28 @@ madoc_manifest <- function(site, id){
   out
 }
 
+#' @title Put manifest metadata in a data.frame
+#' @description Convert manifest metadata to a data.frame
+#' @param x a data.frame with the output of \code{\link{madoc_manifest}}
+#' @export
+#' @return a data.frame with columns manifest_id and the columns available in the metadata, lowercased
+#' @examples 
+#' site      <- "https://www.madoc.ugent.be/s/brugse-vrije"
+#' projects  <- madoc_projects(site)
+#' manifests <- madoc_collection(site = site, id = projects$collection_id)
+#' metadata  <- madoc_manifest_metadata(manifests)
+madoc_manifest_metadata <- function(x){
+  manifests <- x
+  x <- stats::setNames(manifests$metadata, manifests$manifest_id)
+  x <- data.table::rbindlist(x, idcol = "manifest_id")
+  x <- data.table::dcast.data.table(data = x, formula = manifest_id ~ key)
+  x <- data.table::setnames(x, old = colnames(x), new = tolower(colnames(x)))
+  x <- data.table::setDF(x)
+  mani <- data.frame(manifest_id = manifests$manifest_id, stringsAsFactors = FALSE)
+  mani <- merge(mani, x, by = "manifest_id", all.x = TRUE, all.y = FALSE, sort = FALSE)
+  mani
+}
+
 #' @title Retrieve canvas image details from Madoc 
 #' @description Get a data.frame of canvas information (image height/width + image_url) by using the Madoc API's.\cr
 #' This function performs a GET request to /madoc/api/canvases
@@ -168,8 +192,8 @@ madoc_canvas_image <- function(site, id){
 #' @export
 #' @return in case 
 #' \itemize{
-#' \item{id is of length 1: }{a list with elements canvas_id and annotations where annotations is a data.frame with columns document_id, document_type, document_label, model_id, id, type, value, label, id_revision, id_revises, selector_state, selector_type, selector_id. }
-#' \item{id is vector of length > 1: }{a data.frame with columns canvas_id, document_id, document_type, document_label, model_id, id, type, value, label, id_revision, id_revises, selector_state, selector_type, selector_id. Containing only rows for canvasses which have annotations.}
+#' \item{id is of length 1: }{a list with elements canvas_id and annotations where annotations is a data.frame with columns document_id, document_type, document_label, model_id, status, authors, id, type, value, label, id_revision, id_revises, selector_state, selector_type, selector_id. }
+#' \item{id is vector of length > 1: }{a data.frame with columns canvas_id, document_id, document_type, document_label, model_id, status, authors, id, type, value, label, id_revision, id_revises, selector_state, selector_type, selector_id. Containing only rows for canvasses which have annotations.}
 #' }
 #' @examples 
 #' site         <- "https://www.madoc.ugent.be/s/brugse-vrije"
@@ -186,8 +210,10 @@ madoc_canvas_model <- function(site, id){
       x$annotations$canvas_id <- rep(x$canvas_id, nrow(x$annotations))
       x$annotations
     })
-    out <- data.table::rbindlist(out, use.names = TRUE, fill = TRUE)
-    out <- data.table::setDF(out)
+    out   <- data.table::rbindlist(out, use.names = TRUE, fill = TRUE)
+    first <- intersect(c("document_id", "document_type", "document_label", "model_id", "status", "authors"), colnames(out))
+    out   <- data.table::setcolorder(out, neworder = c(first, setdiff(colnames(out), first)))
+    out   <- data.table::setDF(out)
     return(out)
   }
   msg      <- GET(sprintf("%s/madoc/api/canvases/%s/models", site, id), encode = "json")
@@ -213,12 +239,22 @@ madoc_canvas_model <- function(site, id){
       property
     }) 
     annotations                <- data.table::rbindlist(annotations)
+    revisions <- lapply(x$revisions, FUN = function(x){
+      revision <- data.frame(id_revision = x$id, 
+                             status = x$status,
+                             authors = udpipe::txt_collapse(x$authors, collapse = ";"), stringsAsFactors = FALSE)
+      revision
+    })
+    revisions                 <- data.table::rbindlist(revisions)
+    annotations$authors       <- txt_recode(annotations$id_revision, from = revisions$id_revision, to = revisions$authors)
+    annotations$status        <- txt_recode(annotations$id_revision, from = revisions$id_revision, to = revisions$status)
+    
     annotations                <- data.table::setDF(annotations)
     annotations$document_id    <- rep(x$document$id, nrow(annotations))
     annotations$document_type  <- rep(x$document$type, nrow(annotations))
     annotations$document_label <- rep(x$document$label, nrow(annotations))
     annotations$model_id       <- rep(x$structure$id, nrow(annotations))
-    first <- c("document_id", "document_type", "document_label", "model_id")
+    first <- intersect(c("document_id", "document_type", "document_label", "model_id", "status", "authors"), colnames(annotations))
     annotations                <- data.table::setcolorder(annotations, neworder = c(first, setdiff(colnames(annotations), first)))
     annotations
   })
@@ -230,3 +266,4 @@ madoc_canvas_model <- function(site, id){
   list(canvas_id = id, 
        annotations = details)
 }
+

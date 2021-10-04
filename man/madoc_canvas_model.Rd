@@ -14,8 +14,8 @@ madoc_canvas_model(site, id)
 \value{
 in case 
 \itemize{
-\item{id is of length 1: }{a list with elements canvas_id and annotations where annotations is a data.frame with columns document_id, document_type, document_label, model_id, id, type, value, label, id_revision, id_revises, selector_state, selector_type, selector_id. }
-\item{id is vector of length > 1: }{a data.frame with columns canvas_id, document_id, document_type, document_label, model_id, id, type, value, label, id_revision, id_revises, selector_state, selector_type, selector_id. Containing only rows for canvasses which have annotations.}
+\item{id is of length 1: }{a list with elements canvas_id and annotations where annotations is a data.frame with columns document_id, document_type, document_label, model_id, status, authors, id, type, value, label, id_revision, id_revises, selector_state, selector_type, selector_id. }
+\item{id is vector of length > 1: }{a data.frame with columns canvas_id, document_id, document_type, document_label, model_id, status, authors, id, type, value, label, id_revision, id_revises, selector_state, selector_type, selector_id. Containing only rows for canvasses which have annotations.}
 }
 }
 \description{
