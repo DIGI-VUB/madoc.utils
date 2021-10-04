@@ -4,15 +4,17 @@
 \alias{madoc_collection}
 \title{Retrieve a collection from Madoc}
 \usage{
-madoc_collection(site, id)
+madoc_collection(site, id, tidy_metadata = FALSE)
 }
 \arguments{
 \item{site}{character string with the site}
 
 \item{id}{the id of the collection}
+
+\item{tidy_metadata}{logical indicating to add the metadata in a tidy data.frame instead of a list column}
 }
 \value{
-a data.frame with columns collection_id, manifest_id, type, label, canvasCount, thumbnail and metadata
+a data.frame with columns collection_id, manifest_id, manifest_type, manifest_label, manifest_canvasCount, manifest_thumbnail and manifest_metadata
 }
 \description{
 Get a data.frame of all manifests which are part of a collection by using the Madoc API's.\cr
@@ -22,4 +24,5 @@ This function performs a GET request to /madoc/api/collections and handles pagin
 site      <- "https://www.madoc.ugent.be/s/brugse-vrije"
 projects  <- madoc_projects(site)
 manifests <- madoc_collection(site = site, id = projects$collection_id)
+manifests <- madoc_collection(site = site, id = projects$collection_id, tidy_metadata = TRUE)
 }

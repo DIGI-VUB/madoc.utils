@@ -33,21 +33,23 @@ madoc_projects <- function(site){
 #' This function performs a GET request to /madoc/api/collections and handles pagination 
 #' @param site character string with the site
 #' @param id the id of the collection
+#' @param tidy_metadata logical indicating to add the metadata in a tidy data.frame instead of a list column
 #' @export
-#' @return a data.frame with columns collection_id, manifest_id, type, label, canvasCount, thumbnail and metadata
+#' @return a data.frame with columns collection_id, manifest_id, manifest_type, manifest_label, manifest_canvasCount, manifest_thumbnail and manifest_metadata
 #' @examples 
 #' site      <- "https://www.madoc.ugent.be/s/brugse-vrije"
 #' projects  <- madoc_projects(site)
 #' manifests <- madoc_collection(site = site, id = projects$collection_id)
-madoc_collection <- function(site, id){
+#' manifests <- madoc_collection(site = site, id = projects$collection_id, tidy_metadata = TRUE)
+madoc_collection <- function(site, id, tidy_metadata = FALSE){
   parse_collection <- function(response){
     info     <- fromJSON(response, simplifyDataFrame = FALSE, simplifyVector = FALSE, simplifyMatrix = FALSE)
     collectie <- data.frame(manifest_id = sapply(info$collection$items, FUN = function(x) x$id),
-                            type = sapply(info$collection$items, FUN = function(x) x$type),
-                            label = sapply(info$collection$items, FUN = function(x) txt_collapse(unlist(x$label), collapse = " - ")), 
-                            canvasCount = sapply(info$collection$items, FUN = function(x) x$canvasCount),
-                            thumbnail = txt_collapse(sapply(info$collection$items, FUN = function(x) x$thumbnail)),
-                            metadata = I(lapply(info$collection$items, FUN = function(item){
+                            manifest_type = sapply(info$collection$items, FUN = function(x) x$type),
+                            manifest_label = sapply(info$collection$items, FUN = function(x) txt_collapse(unlist(x$label), collapse = " - ")), 
+                            manifest_canvasCount = sapply(info$collection$items, FUN = function(x) x$canvasCount),
+                            manifest_thumbnail = txt_collapse(sapply(info$collection$items, FUN = function(x) x$thumbnail)),
+                            manifest_metadata = I(lapply(info$collection$items, FUN = function(item){
                               if(!"metadata" %in% names(item)){
                                 item$metadata <- list(list(label = character(), value = character()))
                               }
@@ -82,6 +84,13 @@ madoc_collection <- function(site, id){
   first <- "collection_id"
   info <- data.table::setcolorder(info, neworder = c(first, setdiff(colnames(info), first)))
   info <- data.table::setDF(info)
+  if(tidy_metadata){
+    metadata <- madoc_manifest_metadata(info)
+    info     <- merge(info[, c("collection_id", "manifest_id", "manifest_type", "manifest_label", "manifest_canvasCount")], 
+                      metadata, by = "manifest_id", all.x = TRUE, all.y = TRUE)
+  }
+  
+  
   info
 }
 
@@ -135,8 +144,9 @@ madoc_manifest <- function(site, id){
 #' manifests <- madoc_collection(site = site, id = projects$collection_id)
 #' metadata  <- madoc_manifest_metadata(manifests)
 madoc_manifest_metadata <- function(x){
+  stopifnot(is.data.frame(x) && all(c("manifest_id", "manifest_metadata") %in% colnames(x)))
   manifests <- x
-  x <- stats::setNames(manifests$metadata, manifests$manifest_id)
+  x <- stats::setNames(manifests$manifest_metadata, manifests$manifest_id)
   x <- data.table::rbindlist(x, idcol = "manifest_id")
   x <- data.table::dcast.data.table(data = x, formula = manifest_id ~ key)
   x <- data.table::setnames(x, old = colnames(x), new = tolower(colnames(x)))
@@ -181,6 +191,7 @@ madoc_canvas_image <- function(site, id){
     width = info$canvas$width,
     image_url = I(lapply(info$canvas$items$items, FUN = function(x) x$body$id)),
     stringsAsFactors = FALSE)
+  x$image_url <- txt_collapse(x$image_url, collapse = ";")
   x
 }
 
@@ -211,7 +222,7 @@ madoc_canvas_model <- function(site, id){
       x$annotations
     })
     out   <- data.table::rbindlist(out, use.names = TRUE, fill = TRUE)
-    first <- intersect(c("document_id", "document_type", "document_label", "model_id", "status", "authors"), colnames(out))
+    first <- intersect(c("canvas_id", "document_id", "document_type", "document_label", "model_id", "status", "authors"), colnames(out))
     out   <- data.table::setcolorder(out, neworder = c(first, setdiff(colnames(out), first)))
     out   <- data.table::setDF(out)
     return(out)
@@ -246,15 +257,16 @@ madoc_canvas_model <- function(site, id){
       revision
     })
     revisions                 <- data.table::rbindlist(revisions)
-    annotations$authors       <- txt_recode(annotations$id_revision, from = revisions$id_revision, to = revisions$authors)
-    annotations$status        <- txt_recode(annotations$id_revision, from = revisions$id_revision, to = revisions$status)
-    
+    if(ncol(revisions) > 0 && ncol(annotations) > 0){
+      annotations$authors       <- txt_recode(annotations$id_revision, from = revisions$id_revision, to = revisions$authors)
+      annotations$status        <- txt_recode(annotations$id_revision, from = revisions$id_revision, to = revisions$status)  
+    }
     annotations                <- data.table::setDF(annotations)
     annotations$document_id    <- rep(x$document$id, nrow(annotations))
     annotations$document_type  <- rep(x$document$type, nrow(annotations))
     annotations$document_label <- rep(x$document$label, nrow(annotations))
     annotations$model_id       <- rep(x$structure$id, nrow(annotations))
-    first <- intersect(c("document_id", "document_type", "document_label", "model_id", "status", "authors"), colnames(annotations))
+    first                      <- intersect(c("document_id", "document_type", "document_label", "model_id", "status", "authors"), colnames(annotations))
     annotations                <- data.table::setcolorder(annotations, neworder = c(first, setdiff(colnames(annotations), first)))
     annotations
   })
