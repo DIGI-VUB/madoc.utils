@@ -85,31 +85,49 @@ read_pagexml <- function(x, type = c("transkribus"), ...){
   info <- info[xml_name(info) %in% "Page"]
   info <- xml_children(info)
   info <- info[xml_name(info) %in% "TextRegion"]
-  info <- xml_children(info)
   info <- lapply(info, FUN = function(x){
-    content <- as_list(x)
-    d <- list(id       = attributes(content)$id,
-              coords   = attributes(content$Coords)$points,
-              baseline = attributes(content$Baseline)$points)
+    textregion <- xml_attr(x, "id")
+    info <- xml_children(info)
+    info <- lapply(info, FUN = function(x){
+      content <- as_list(x)
+      if("id" %in% names(attributes(content))){
+        d <- list(id       = attributes(content)$id,
+                  coords   = attributes(content$Coords)$points,
+                  baseline = attributes(content$Baseline)$points)  
+      }else{
+        d <- attributes(content)  
+      }
+      d
+    })
+    info        <- data.table::rbindlist(info, fill = TRUE)
+    info$coords <- strsplit(info$coords, " ")
+    info$coords <- lapply(info$coords, FUN = function(x){
+      x <- strsplit(x, ",") 
+      x <- data.frame(x = as.numeric(sapply(x, FUN = function(x) x[1])),
+                      y = as.numeric(sapply(x, FUN = function(x) x[2])), stringsAsFactors = FALSE)
+      x <- na.exclude(x)
+      x
+    })
+    info$baseline <- strsplit(info$baseline, " ")
+    info$baseline <- lapply(info$baseline, FUN = function(x){
+      x <- strsplit(x, ",") 
+      x <- data.frame(x = as.numeric(sapply(x, FUN = function(x) x[1])),
+                      y = as.numeric(sapply(x, FUN = function(x) x[2])), stringsAsFactors = FALSE)
+      x <- na.exclude(x)
+      x
+    })
+    info$file <- rep(basename(path), nrow(info))
+    info <- data.table::setDF(info)
+    info$textregion <- rep(textregion, nrow(info))
+    info
   })
-  info        <- data.table::rbindlist(info)
-  info$coords <- strsplit(info$coords, " ")
-  info$coords <- lapply(info$coords, FUN = function(x){
-    x <- strsplit(x, ",") 
-    x <- data.frame(x = as.numeric(sapply(x, FUN = function(x) x[1])),
-                    y = as.numeric(sapply(x, FUN = function(x) x[2])), stringsAsFactors = FALSE)
-    x
-  })
-  info$baseline <- strsplit(info$baseline, " ")
-  info$baseline <- lapply(info$baseline, FUN = function(x){
-    x <- strsplit(x, ",") 
-    x <- data.frame(x = as.numeric(sapply(x, FUN = function(x) x[1])),
-                    y = as.numeric(sapply(x, FUN = function(x) x[2])), stringsAsFactors = FALSE)
-    x
-  })
-  info$file <- rep(basename(path), nrow(info))
-  info <- data.table::setDF(info)
-  info <- info[, c("file", "id", "coords", "baseline")]
+  info <- data.table::rbindlist(info, fill = TRUE)
+  info <- setDF(info)
+  f <- c("file", "textregion", "id", "coords", "baseline")
+  f <- intersect(f, colnames(info))
+  if(length(f) > 0){
+    info <- info[, c(f, setdiff(colnames(info), f))]  
+  }
   info
 }
 
