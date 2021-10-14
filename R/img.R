@@ -34,6 +34,8 @@ image_crop_textlines <- function(image, geometries, color = "royalblue", border 
     img <- image_read(image)
   }
   txtlines  <- db
+  txtlines  <- txtlines[, c("width", "height", "x_left", "y_top")]
+  txtlines  <- stats::na.exclude(txtlines)
   areas_img <- lapply(seq_len(nrow(txtlines)), FUN=function(i){
     location <- txtlines[i, ]
     areas <- geometry_area(width = location$width, height = location$height, 
@@ -83,4 +85,62 @@ image_rbind <- function(image){
     stopifnot(all(file.exists(x)))
     image_append(image_read(x), stack = TRUE)
   }
+}
+
+
+
+
+
+
+
+#' @title Crop out areas with text polygons from an image
+#' @description Crop out areas with text polygons from an image
+#' @param image \code{image} either an object of class \code{magick-image} or a path to an image file on disk
+#' @param geometries a data.frame with columns width, height, x_left, y_top indicating the areas to extract from the image
+#' @param color color to use for adding a border in the overview image. Defaults to 'royalblue'.
+#' @param border border pixels to using in the overview image. Defaults to 10x10 pixel borders.
+#' @return a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines
+#' and \code{areas} is a list of \code{magick-image}'s, one for each text line 
+#' @export
+#' @examples
+#' library(opencv) 
+#' library(data.table)
+#' path     <- system.file(package = "madoc.utils", "extdata", "pagexml-example.xml")
+#' x        <- read_pagexml(path)
+#' 
+#' img      <- system.file(package = "madoc.utils", "extdata", "pagexml-example.jpg")
+#' img      <- ocv_read(img)
+#' area     <- ocv_polygon(img, pts = x$coords[[1]])
+#' areas    <- image_crop_textpolygons(img, x, color = "red")
+#' areas$overview
+#' areas$areas
+image_crop_textpolygons <- function(image, geometries, color = "royalblue", border = "10x10"){
+  if(!requireNamespace("opencv")){
+    stop("In order to use image_crop_textpolygons, install R package opencv from CRAN")
+  }
+  stopifnot(is.data.frame(geometries) && all(c("coords", "baseline") %in% colnames(geometries)))
+  db <- geometries
+  if(inherits(image, "opencv-image")){
+    img <- image
+  }else{
+    image <- as.character(image)
+    stopifnot(file.exists(image))
+    img <- opencv::ocv_read(image)
+  }
+  txtlines  <- db
+  txtlines  <- txtlines[which(sapply(txtlines$coords, nrow) > 0), ]
+  areas_img <- lapply(seq_len(nrow(txtlines)), FUN=function(i){
+    location <- txtlines[i, ]
+    pts      <- location$coords[[1]]
+    area     <- opencv::ocv_polygon(img, pts)
+    area     <- opencv::ocv_bbox(area, pts)
+    area     <- opencv::ocv_bitmap(area)
+    area     <- magick::image_read(area)
+    area
+  })
+  #image_append(do.call(c, lapply(areas_img,image_border, "white", "10x10")), stack = TRUE)
+  #image_append(do.call(c, lapply(areas_img,image_border, "#000080", "10x10")), stack = TRUE)
+  #image_append(do.call(c, lapply(areas_img,image_border, "royalblue", "10x10")), stack = TRUE)
+  list(areas = areas_img, 
+       overview = image_append(do.call(c, lapply(areas_img, image_border, color, border)), stack = TRUE))
 }

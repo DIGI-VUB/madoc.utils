@@ -17,5 +17,7 @@ Imports:
     magick,
     data.table (>= 1.11.0),
     udpipe (>= 0.8.5)
+Suggests:
+    opencv (>= 0.2)
 License: MIT + file LICENSE
 RoxygenNote: 7.1.1

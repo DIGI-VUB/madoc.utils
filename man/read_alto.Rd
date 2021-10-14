@@ -23,4 +23,6 @@ is for importing alto-xml files from Transkribus
 \examples{
 f <- system.file(package = "madoc.utils", "extdata", "alto-example.xml")
 x <- read_alto(f)
+f <- system.file(package = "madoc.utils", "extdata", "altoxml-example.xml")
+x <- read_alto(f)
 }

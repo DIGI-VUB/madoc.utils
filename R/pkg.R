@@ -4,5 +4,5 @@
 #' @importFrom udpipe txt_collapse txt_recode
 #' @importFrom httr GET content
 #' @importFrom jsonlite fromJSON
-#' @importFrom stats setNames
+#' @importFrom stats setNames na.exclude
 NULL
