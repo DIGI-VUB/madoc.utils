@@ -35,7 +35,7 @@ x        <- read_pagexml(path)
 
 img      <- system.file(package = "madoc.utils", "extdata", "pagexml-example.jpg")
 img      <- ocv_read(img)
-area     <- ocv_polygon(img, pts = x$coords[[1]])
+area     <- ocv_polygon(img, pts = x$coords[[5]])
 areas    <- image_crop_textpolygons(img, x, color = "red")
 areas$overview
 areas$areas
