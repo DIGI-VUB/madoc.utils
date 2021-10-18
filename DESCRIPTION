@@ -16,7 +16,9 @@ Imports:
     httr,
     magick,
     data.table (>= 1.11.0),
-    udpipe (>= 0.8.5)
+    udpipe (>= 0.8.5),
+    graphics,
+    grDevices
 Suggests:
     opencv (>= 0.2)
 License: MIT + file LICENSE
