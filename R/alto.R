@@ -99,23 +99,15 @@ read_pagexml <- function(x, type = c("transkribus"), ...){
       }
       d
     })
-    info        <- data.table::rbindlist(info, fill = TRUE)
-    info$coords <- strsplit(info$coords, " ")
-    info$coords <- lapply(info$coords, FUN = function(x){
-      x <- strsplit(x, ",") 
-      x <- data.frame(x = as.numeric(sapply(x, FUN = function(x) x[1])),
-                      y = as.numeric(sapply(x, FUN = function(x) x[2])), stringsAsFactors = FALSE)
-      x <- na.exclude(x)
-      x
-    })
+    info          <- data.table::rbindlist(info, fill = TRUE)
+    info$coords   <- strsplit(info$coords, " ")
+    info$coords   <- parse_coords(info$coords)
     info$baseline <- strsplit(info$baseline, " ")
-    info$baseline <- lapply(info$baseline, FUN = function(x){
-      x <- strsplit(x, ",") 
-      x <- data.frame(x = as.numeric(sapply(x, FUN = function(x) x[1])),
-                      y = as.numeric(sapply(x, FUN = function(x) x[2])), stringsAsFactors = FALSE)
-      x <- na.exclude(x)
-      x
-    })
+    info$baseline <- parse_coords(info$baseline)
+    if("points" %in% colnames(info)){
+      info$points <- strsplit(info$points, " ")
+      info$points <- parse_coords(info$points)
+    }
     info$file <- rep(basename(path), nrow(info))
     info <- data.table::setDF(info)
     info$textregion <- rep(textregion, nrow(info))
@@ -131,4 +123,17 @@ read_pagexml <- function(x, type = c("transkribus"), ...){
   info
 }
 
+
+
+
+parse_coords <- function(data, split = ","){
+  out <- lapply(data, FUN = function(x){
+    x <- strsplit(x, split = split) 
+    x <- data.frame(x = as.numeric(sapply(x, FUN = function(x) x[1])),
+                    y = as.numeric(sapply(x, FUN = function(x) x[2])), stringsAsFactors = FALSE)
+    x <- na.exclude(x)
+    x
+  })
+  out
+}
 
