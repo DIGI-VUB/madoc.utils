@@ -8,7 +8,8 @@ image_crop_textpolygons(
   image,
   geometries,
   color = "royalblue",
-  border = "10x10"
+  border = "10x10",
+  trace = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ image_crop_textpolygons(
 \item{color}{color to use for adding a border in the overview image. Defaults to 'royalblue'.}
 
 \item{border}{border pixels to using in the overview image. Defaults to 10x10 pixel borders.}
+
+\item{trace}{logical indicating to trace progress}
 }
 \value{
 a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines

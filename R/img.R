@@ -99,6 +99,7 @@ image_rbind <- function(image){
 #' @param geometries a data.frame with columns width, height, x_left, y_top indicating the areas to extract from the image
 #' @param color color to use for adding a border in the overview image. Defaults to 'royalblue'.
 #' @param border border pixels to using in the overview image. Defaults to 10x10 pixel borders.
+#' @param trace logical indicating to trace progress
 #' @return a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines
 #' and \code{areas} is a list of \code{magick-image}'s, one for each text line 
 #' @export
@@ -114,7 +115,7 @@ image_rbind <- function(image){
 #' areas    <- image_crop_textpolygons(img, x, color = "red")
 #' areas$overview
 #' areas$areas
-image_crop_textpolygons <- function(image, geometries, color = "royalblue", border = "10x10"){
+image_crop_textpolygons <- function(image, geometries, color = "royalblue", border = "10x10", trace = FALSE){
   if(!requireNamespace("opencv")){
     stop("In order to use image_crop_textpolygons, install R package opencv from CRAN")
   }
@@ -130,10 +131,13 @@ image_crop_textpolygons <- function(image, geometries, color = "royalblue", bord
   txtlines  <- db
   txtlines  <- txtlines[which(sapply(txtlines$coords, nrow) > 0), ]
   areas_img <- lapply(seq_len(nrow(txtlines)), FUN=function(i){
+    if(trace){
+      cat(sprintf("%s area %s/%s", Sys.time(), i, length(txtlines)), sep = "\n")
+    }
     location <- txtlines[i, ]
     pts      <- location$coords[[1]]
-    area     <- opencv::ocv_polygon(img, pts)
-    area     <- opencv::ocv_bbox(area, pts)
+    area     <- opencv::ocv_polygon(img, pts, crop = TRUE)
+    #area     <- opencv::ocv_bbox(area, pts)
     area     <- opencv::ocv_bitmap(area)
     area     <- magick::image_read(area)
     area
@@ -196,6 +200,7 @@ image_draw_baselines <- function(image, x, ...){
 #' @param extend logical indicating to extend the baseline to the left and right of the image. Defaults to TRUE.
 #' @param color color to use for adding a border in the overview image. Defaults to 'royalblue'.
 #' @param border border pixels to using in the overview image. Defaults to 10x10 pixel borders.
+#' @param trace logical indicating to trace progress
 #' @param ... further arguments currently not used
 #' @return a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines
 #' and \code{areas} is a list of \code{magick-image}'s, one for each text line 
@@ -213,7 +218,7 @@ image_draw_baselines <- function(image, x, ...){
 #' image_resize(areas$overview, "x600")
 #' areas    <- image_crop_baselineareas(img, x = x$baseline, extend = TRUE, color = "red")
 #' image_resize(areas$overview, "x600")
-image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue", border = "10x10", ...){
+image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue", border = "10x10", trace = FALSE, ...){
   if(!requireNamespace("opencv")){
     stop("In order to use image_crop_baselineareas, install R package opencv from CRAN")
   }
@@ -226,6 +231,21 @@ image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue
   }
   width  <- opencv::ocv_info(img)$width
   height <- opencv::ocv_info(img)$height
+  msg <- lapply(x, FUN = function(pts){
+    pts$outofrange <- pts$x < 0 | pts$x >= width | pts$y < 0 | pts$y >= height
+    pts
+  })
+  idx <- which(sapply(msg, FUN = function(pts) any(pts$x < 0 | pts$x >= width | pts$y < 0 | pts$y >= height)))
+  if(length(idx) > 0){
+    msg <- msg[idx]
+    msg <- mapply(msg, idx, FUN = function(x, i){
+      x <- x[which(x$outofrange), ]
+      paste(sprintf("%s:(%s, %s)", i, x$x, x$y), collapse = " ")
+    }, SIMPLIFY = TRUE, USE.NAMES = TRUE)
+    msg <- paste(msg, collapse = "; ")
+    warning(sprintf("Found unexpected baseline x/y values not within expected range (0 - width/height)\n %s", msg))
+  }
+  
   if(extend){
     x <- lapply(x, extend_baselines, width = width - 1, height = height - 1)
   }
@@ -249,9 +269,12 @@ image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue
   }
   
   areas_img <- lapply(seq_len(length(polylines)), FUN=function(i){
+    if(trace){
+      cat(sprintf("%s area %s/%s", Sys.time(), i, length(polylines)), sep = "\n")
+    }
     pts      <- polylines[[i]]
-    area     <- opencv::ocv_polygon(img, pts)
-    area     <- opencv::ocv_bbox(area, pts)
+    area     <- opencv::ocv_polygon(img, pts, crop = TRUE)
+    #area     <- opencv::ocv_bbox(area, pts)
     area     <- opencv::ocv_bitmap(area)
     area     <- magick::image_read(area)
     area
@@ -280,8 +303,16 @@ image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue
 
 extend_baselines <- function(pts, width, height){
   if(nrow(pts) < 2){
-    extended <- data.frame(x = integer(), y = integer())
-    extended <- rbind(extended, pts)
+    if(nrow(pts) == 1){
+      extended <- pts
+      extended$y  <- ifelse(extended$y < 0, 0, extended$y)
+      extended$y  <- ifelse(extended$y > height, height, extended$y)
+      extended$x  <- ifelse(extended$x < 0, 0, extended$x)
+      extended$x  <- ifelse(extended$x > height, height, extended$x)
+    }else{
+      extended <- data.frame(x = integer(), y = integer())
+      #extended <- rbind(extended, pts)  
+    }
     return(extended)
   }
   horizontaal <- pts$x
@@ -289,10 +320,13 @@ extend_baselines <- function(pts, width, height){
   m           <- lm(y ~ x, data = pts)
   extended    <- data.frame(x = c(0, width))
   extended$y  <- predict(m, newdata = extended)
+  extended    <- rbind(head(extended, n = 1),
+                       pts,
+                       tail(extended, n = 1))
   extended$y  <- ifelse(extended$y < 0, 0, extended$y)
   extended$y  <- ifelse(extended$y > height, height, extended$y)
-  extended    <- rbind(extended, pts)
-  extended    <- extended[order(extended$x, decreasing = FALSE), ]
+  extended$x  <- ifelse(extended$x < 0, 0, extended$x)
+  extended$x  <- ifelse(extended$x > height, height, extended$x)
   extended
 }
 
@@ -338,10 +372,10 @@ image_crop_area <- function(image, x, bbox = FALSE, ...){
     })
   }else{
     if(nrow(pts) > 0){
-      area     <- opencv::ocv_polygon(img, pts)
-      if(bbox){
-        area     <- opencv::ocv_bbox(area, pts) 
-      }
+      area     <- opencv::ocv_polygon(img, pts, crop = bbox)
+      # if(bbox){
+      #   area     <- opencv::ocv_bbox(area, pts) 
+      # }
       area     <- opencv::ocv_bitmap(area)
       area     <- magick::image_read(area)   
     }else{
