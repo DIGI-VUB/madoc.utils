@@ -99,13 +99,10 @@ read_pagexml <- function(x, type = c("transkribus"), ...){
       d
     })
     info          <- data.table::rbindlist(info, fill = TRUE)
-    info$coords   <- strsplit(info$coords, " ")
-    info$coords   <- parse_coords(info$coords)
-    info$baseline <- strsplit(info$baseline, " ")
-    info$baseline <- parse_coords(info$baseline)
+    info$coords   <- coords_xy(info$coords)
+    info$baseline <- coords_xy(info$baseline)
     if("points" %in% colnames(info)){
-      info$points <- strsplit(info$points, " ")
-      info$points <- parse_coords(info$points)
+      info$points <- coords_xy(info$points)
     }
     info$file <- rep(basename(path), nrow(info))
     info <- data.table::setDF(info)
@@ -124,8 +121,24 @@ read_pagexml <- function(x, type = c("transkribus"), ...){
 
 
 
-
-parse_coords <- function(data, split = ","){
+#' @title Parse coords of points
+#' @description Parse coords of points where the list of coordinates is available in a string
+#' as follows: x1,y1 x2,y2, x3,y3
+#' @param data a character vector or a list of character data
+#' @param split which split character to use between x and y. Defaults to ','
+#' @return a list of data.frames with columns x and y
+#' @keywords internal
+#' @export
+#' @examples 
+#' x <- c("0.1,0.2 0.3,0.15", "", NA, "1,2 3,4 5,6 1,0")
+#' coords_xy(x)
+#' x <- c("0.1,0.2 0.3,0.15", "", NA, "1,2 3,4 5,6 1,0")
+#' x <- strsplit(x, " ")
+#' coords_xy(x)
+coords_xy <- function(data, split = ","){
+  if(is.character(data)){
+    data <- strsplit(data, " ")
+  }
   out <- lapply(data, FUN = function(x){
     x <- strsplit(x, split = split) 
     x <- data.frame(x = as.numeric(sapply(x, FUN = function(x) x[1])),
@@ -135,4 +148,5 @@ parse_coords <- function(data, split = ","){
   })
   out
 }
+
 
