@@ -279,8 +279,9 @@ image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue
 # plt
 
 extend_baselines <- function(pts, width, height){
-  if(nrow(pts) != 2){
+  if(nrow(pts) < 2){
     extended <- data.frame(x = integer(), y = integer())
+    extended <- rbind(extended, pts)
     return(extended)
   }
   horizontaal <- pts$x
@@ -290,6 +291,8 @@ extend_baselines <- function(pts, width, height){
   extended$y  <- predict(m, newdata = extended)
   extended$y  <- ifelse(extended$y < 0, 0, extended$y)
   extended$y  <- ifelse(extended$y > height, height, extended$y)
+  extended    <- rbind(extended, pts)
+  extended    <- extended[order(extended$x, decreasing = FALSE), ]
   extended
 }
 
