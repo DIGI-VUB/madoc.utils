@@ -53,13 +53,12 @@ read_alto <- function(x, type = c("transkribus"), ...){
       }
       return(att)
     })
-    content <- data.table::rbindlist(content)  
+    content <- data.table::rbindlist(content, fill = TRUE)  
     content
   })
-  info <- data.table::rbindlist(info)
+  info <- data.table::rbindlist(info, fill = TRUE)
   info
 }
-
 
 
 
