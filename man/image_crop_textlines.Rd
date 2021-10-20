@@ -10,7 +10,8 @@ image_crop_textlines(
   color = "royalblue",
   border = "10x10",
   overview = TRUE,
-  max_width = +Inf
+  max_width = +Inf,
+  trace = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ image_crop_textlines(
 \item{overview}{logical indicating to add the overview image of all area's below each other. Defaults to TRUE.}
 
 \item{max_width}{maximum width of the overview image. Defaults to +Inf}
+
+\item{trace}{logical indicating to trace progress}
 }
 \value{
 a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines
@@ -43,6 +46,8 @@ x$width  <- as.integer(x$WIDTH)
 x$height <- as.integer(x$HEIGHT)
 x$x_left <- as.integer(x$HPOS)
 x$y_top  <- as.integer(x$VPOS)
+x           <- subset(x, grepl(ID, pattern = "line"))
+rownames(x) <- x$ID
 
 img      <- system.file(package = "madoc.utils", "extdata", "alto-example.jpg")
 img      <- image_read(img)

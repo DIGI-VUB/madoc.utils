@@ -7,6 +7,7 @@
 #' @param border border pixels to using in the overview image. Defaults to 10x10 pixel borders.
 #' @param overview logical indicating to add the overview image of all area's below each other. Defaults to TRUE.
 #' @param max_width maximum width of the overview image. Defaults to +Inf
+#' @param trace logical indicating to trace progress
 #' @return a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines
 #' and \code{areas} is a list of \code{magick-image}'s, one for each text line. \cr
 #' In case overview is set to \code{FALSE} the return value is only the list of stacked image lines.
@@ -20,13 +21,15 @@
 #' x$height <- as.integer(x$HEIGHT)
 #' x$x_left <- as.integer(x$HPOS)
 #' x$y_top  <- as.integer(x$VPOS)
+#' x           <- subset(x, grepl(ID, pattern = "line"))
+#' rownames(x) <- x$ID
 #' 
 #' img      <- system.file(package = "madoc.utils", "extdata", "alto-example.jpg")
 #' img      <- image_read(img)
 #' areas    <- image_crop_textlines(img, x, color = "red")
 #' areas$overview
 #' areas$areas
-image_crop_textlines <- function(image, geometries, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf){
+image_crop_textlines <- function(image, geometries, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf, trace = FALSE){
   stopifnot(is.data.frame(geometries) && all(c("width", "height", "x_left", "y_top") %in% colnames(geometries)))
   db <- geometries
   if(inherits(image, "magick-image")){
@@ -38,13 +41,18 @@ image_crop_textlines <- function(image, geometries, color = "royalblue", border 
   }
   txtlines  <- db
   txtlines  <- txtlines[, c("width", "height", "x_left", "y_top")]
-  txtlines  <- stats::na.exclude(txtlines)
+  txtlines  <- txtlines[!is.na(txtlines$width) & !is.na(txtlines$height) & !is.na(txtlines$x_left) & !is.na(txtlines$y_top), ]
+  #txtlines  <- stats::na.exclude(txtlines)
   areas_img <- lapply(seq_len(nrow(txtlines)), FUN=function(i){
     location <- txtlines[i, ]
     areas <- geometry_area(width = location$width, height = location$height, 
                            x_off = location$x_left, y_off = location$y_top)
     image_crop(img, geometry = areas)
   })
+  if(!is.null(rownames(txtlines))){
+    names(areas_img) <- rownames(txtlines)  
+  }
+  
   #image_append(do.call(c, lapply(areas_img,image_border, "white", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "#000080", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "royalblue", "10x10")), stack = TRUE)
@@ -62,6 +70,7 @@ image_crop_textlines <- function(image, geometries, color = "royalblue", border 
 #' @title Stack images below one another
 #' @description Stack images below one another
 #' @param image either an object of class \code{magick-image} or a character vector of files
+#' @param ... further arguments passed on to image_border in case you want to add a border around the image
 #' @return an object of class \code{magick-image} where all images are put below one another
 #' @export
 #' @examples
@@ -82,17 +91,25 @@ image_crop_textlines <- function(image, geometries, color = "royalblue", border 
 #' 
 #' all      <- image_rbind(areas$areas)
 #' all
-#' all      <- do.call(c, areas$areas)
+#' all      <- image_rbind(areas$areas, color = "red", geometry = "10x10")
 #' all
-image_rbind <- function(image){
+#' all      <- do.call(c, areas$areas)
+#' all      <- image_rbind(all, color = "blue", geometry = "10x10")
+#' all
+image_rbind <- function(image, ...){
   x <- image
+  ldots <- list(...)
+  if(length(ldots) > 0){
+    x <- lapply(x, FUN = image_border, ...)
+  }
   if(inherits(x, "magick-image")){
     image_append(x, stack = TRUE)
   }else if(is.list(x)){
     image_append(do.call(c, x), stack = TRUE)
   }else{
     stopifnot(all(file.exists(x)))
-    image_append(image_read(x), stack = TRUE)
+    x <- image_read(x)
+    image_rbind(x, ...)
   }
 }
 
@@ -154,6 +171,9 @@ image_crop_textpolygons <- function(image, geometries, color = "royalblue", bord
     area     <- magick::image_read(area)
     area
   })
+  if(!is.null(rownames(txtlines))){
+    names(areas_img) <- rownames(txtlines)  
+  }
   #image_append(do.call(c, lapply(areas_img,image_border, "white", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "#000080", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "royalblue", "10x10")), stack = TRUE)
@@ -284,7 +304,14 @@ image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue
       paste(sprintf("%s:(%s, %s)", i, x$x, x$y), collapse = " ")
     }, SIMPLIFY = TRUE, USE.NAMES = TRUE)
     msg <- paste(msg, collapse = "; ")
-    warning(sprintf("Found unexpected baseline x/y values not within expected range (0 - width/height)\n %s", msg))
+    warning(sprintf("Found unexpected baseline x/y values not within expected range (0 - %sx%s)\n %s", width, height, msg))
+    x <- lapply(x, FUN = function(pts){
+      pts$x <- ifelse(pts$x < 0, 0, pts$x)
+      pts$x <- ifelse(pts$x >= width, width - 1, pts$x)
+      pts$y <- ifelse(pts$y < 0, 0, pts$y)
+      pts$y <- ifelse(pts$y >= height, height - 1, pts$y)
+      pts
+    })
   }
   
   if(extend){
@@ -320,6 +347,7 @@ image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue
     area     <- magick::image_read(area)
     area
   })
+  names(areas_img) <- names(polylines)
   #image_append(do.call(c, lapply(areas_img,image_border, "white", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "#000080", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "royalblue", "10x10")), stack = TRUE)
@@ -430,3 +458,4 @@ image_crop_area <- function(image, x, bbox = FALSE, ...){
   }
   area
 }
+

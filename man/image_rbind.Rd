@@ -4,10 +4,12 @@
 \alias{image_rbind}
 \title{Stack images below one another}
 \usage{
-image_rbind(image)
+image_rbind(image, ...)
 }
 \arguments{
 \item{image}{either an object of class \code{magick-image} or a character vector of files}
+
+\item{...}{further arguments passed on to image_border in case you want to add a border around the image}
 }
 \value{
 an object of class \code{magick-image} where all images are put below one another
@@ -33,6 +35,9 @@ areas$areas
 
 all      <- image_rbind(areas$areas)
 all
+all      <- image_rbind(areas$areas, color = "red", geometry = "10x10")
+all
 all      <- do.call(c, areas$areas)
+all      <- image_rbind(all, color = "blue", geometry = "10x10")
 all
 }
