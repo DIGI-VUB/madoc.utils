@@ -9,4 +9,6 @@
 #' @importFrom grDevices dev.off
 #' @importFrom utils head tail
 #' @importFrom zoo na.locf
+#' @importFrom rgeos gIntersection
+#' @importFrom sp Polygon Polygons SpatialPolygons coordinates
 NULL

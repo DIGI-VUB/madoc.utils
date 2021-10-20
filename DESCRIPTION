@@ -20,7 +20,9 @@ Imports:
     graphics,
     grDevices,
     utils,
-    zoo
+    zoo,
+    sp,
+    rgeos
 Suggests:
     opencv (>= 0.2)
 License: MIT + file LICENSE

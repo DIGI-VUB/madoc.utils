@@ -255,6 +255,8 @@ image_draw_baselines <- function(image, x, ...){
 #' @description Extract areas between baselines
 #' @param image \code{image} either an object of class \code{opencv-image} or a path to an image file on disk
 #' @param x a list vector where each list element contains columns x and y indicating the positions of the baseline
+#' @param textregion a list vector of the same length of \code{x} where each list element contains columns x and y indicating the positions of textregion. 
+#' The extracted areas can not pass these boundaries
 #' @param extend logical indicating to extend the baseline to the left and right of the image. Defaults to TRUE.
 #' @param color color to use for adding a border in the overview image. Defaults to 'royalblue'.
 #' @param border border pixels to using in the overview image. Defaults to 10x10 pixel borders.
@@ -279,7 +281,19 @@ image_draw_baselines <- function(image, x, ...){
 #' image_resize(areas$overview, "x600")
 #' areas    <- image_crop_baselineareas(img, x = x$baseline, extend = TRUE, color = "red")
 #' image_resize(areas$overview, "x600")
-image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf, trace = FALSE, ...){
+#' 
+#' ## Multiple regions
+#' path     <- system.file(package = "madoc.utils", "extdata", "multiregion-page.xml")
+#' x        <- read_pagexml(path)
+#' x
+#' img      <- system.file(package = "madoc.utils", "extdata", "multiregion.jpg")
+#' img      <- ocv_read(img)
+#' areas    <- image_crop_baselineareas(img, 
+#'                                      x = x$baseline, textregion = x$points, 
+#'                                      extend = TRUE, overview = FALSE)
+#' overview <- image_rbind(areas, color = "grey", geometry = "5x5")
+#' image_resize(overview, "600")                                      
+image_crop_baselineareas <- function(image, x, textregion, extend = TRUE, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf, trace = FALSE, ...){
   if(!requireNamespace("opencv")){
     stop("In order to use image_crop_baselineareas, install R package opencv from CRAN")
   }
@@ -318,7 +332,12 @@ image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue
     x <- lapply(x, extend_baselines, width = width - 1, height = height - 1)
   }
   polylines <- x
-  polylines <- polylines[which(sapply(polylines, FUN = function(x) is.data.frame(x) && nrow(x) > 0))]
+  idx_ok <- which(sapply(polylines, FUN = function(x) is.data.frame(x) && nrow(x) > 0))
+  polylines <- polylines[idx_ok]
+  missing_textregion <- missing(textregion)
+  if(!missing_textregion){
+    textregion <- textregion[idx_ok]
+  }
   for(i in rev(seq_len(length(polylines)))){
     pts <- polylines[[i]]
     if(i == 1){
@@ -335,12 +354,29 @@ image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue
     pts$y <- round(pts$y, digits = 0)
     polylines[[i]] <- pts
   }
-  
+  coords <- function(obj){
+    all <- lapply(obj@polygons, FUN = function(x){
+      co <- lapply(x@Polygons, FUN = sp::coordinates)
+      co <- do.call(rbind, co)
+      co
+    })
+    all <- do.call(rbind, all)
+    colnames(all) <- c("x", "y")
+    all
+  }  
   areas_img <- lapply(seq_len(length(polylines)), FUN=function(i){
     if(trace){
       cat(sprintf("%s area %s/%s", Sys.time(), i, length(polylines)), sep = "\n")
     }
     pts      <- polylines[[i]]
+    if(!missing_textregion){
+      textpolygon <- textregion[[i]]
+      a <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords = pts)), ID = "baseline")))
+      b <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords = textpolygon)), ID = "textregion")))
+      area <- rgeos::gIntersection(a, b)
+      pts  <- coords(area)
+      pts  <- list(x = pts[, "x"], y = pts[, "y"])
+    }
     area     <- opencv::ocv_polygon(img, pts, crop = TRUE)
     #area     <- opencv::ocv_bbox(area, pts)
     area     <- opencv::ocv_bitmap(area)

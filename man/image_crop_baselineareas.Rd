@@ -7,6 +7,7 @@
 image_crop_baselineareas(
   image,
   x,
+  textregion,
   extend = TRUE,
   color = "royalblue",
   border = "10x10",
@@ -20,6 +21,9 @@ image_crop_baselineareas(
 \item{image}{\code{image} either an object of class \code{opencv-image} or a path to an image file on disk}
 
 \item{x}{a list vector where each list element contains columns x and y indicating the positions of the baseline}
+
+\item{textregion}{a list vector of the same length of \code{x} where each list element contains columns x and y indicating the positions of textregion. 
+The extracted areas can not pass these boundaries}
 
 \item{extend}{logical indicating to extend the baseline to the left and right of the image. Defaults to TRUE.}
 
@@ -56,4 +60,16 @@ areas$areas
 image_resize(areas$overview, "x600")
 areas    <- image_crop_baselineareas(img, x = x$baseline, extend = TRUE, color = "red")
 image_resize(areas$overview, "x600")
+
+## Multiple regions
+path     <- system.file(package = "madoc.utils", "extdata", "multiregion-page.xml")
+x        <- read_pagexml(path)
+x
+img      <- system.file(package = "madoc.utils", "extdata", "multiregion.jpg")
+img      <- ocv_read(img)
+areas    <- image_crop_baselineareas(img, 
+                                     x = x$baseline, textregion = x$points, 
+                                     extend = TRUE, overview = FALSE)
+overview <- image_rbind(areas, color = "grey", geometry = "5x5")
+image_resize(overview, "600")                                      
 }
