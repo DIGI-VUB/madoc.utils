@@ -95,6 +95,7 @@ read_pagexml <- function(x, type = c("transkribus"), ...){
   info <- lapply(info, FUN = function(x){
     textregion <- xml_attr(x, "id")
     info <- xml_children(x)
+    info <- info[xml_name(info) %in% c("TextLine", "Coords")]
     info <- lapply(info, FUN = function(x){
       content <- as_list(x)
       if("id" %in% names(attributes(content))){
@@ -110,6 +111,7 @@ read_pagexml <- function(x, type = c("transkribus"), ...){
     info$coords   <- coords_xy(info$coords)
     info$baseline <- coords_xy(info$baseline)
     if("points" %in% colnames(info)){
+      info$points <- zoo::na.locf(info$points)
       info$points <- coords_xy(info$points)
     }
     info$file <- rep(basename(path), nrow(info))

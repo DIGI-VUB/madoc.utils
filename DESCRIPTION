@@ -19,7 +19,8 @@ Imports:
     udpipe (>= 0.8.5),
     graphics,
     grDevices,
-    utils
+    utils,
+    zoo
 Suggests:
     opencv (>= 0.2)
 License: MIT + file LICENSE

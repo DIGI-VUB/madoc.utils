@@ -8,4 +8,5 @@
 #' @importFrom graphics lines 
 #' @importFrom grDevices dev.off
 #' @importFrom utils head tail
+#' @importFrom zoo na.locf
 NULL
