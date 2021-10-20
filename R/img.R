@@ -5,8 +5,11 @@
 #' @param geometries a data.frame with columns width, height, x_left, y_top indicating the areas to extract from the image
 #' @param color color to use for adding a border in the overview image. Defaults to 'royalblue'.
 #' @param border border pixels to using in the overview image. Defaults to 10x10 pixel borders.
+#' @param overview logical indicating to add the overview image of all area's below each other. Defaults to TRUE.
+#' @param max_width maximum width of the overview image. Defaults to +Inf
 #' @return a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines
-#' and \code{areas} is a list of \code{magick-image}'s, one for each text line 
+#' and \code{areas} is a list of \code{magick-image}'s, one for each text line. \cr
+#' In case overview is set to \code{FALSE} the return value is only the list of stacked image lines.
 #' @export
 #' @examples
 #' library(magick) 
@@ -23,7 +26,7 @@
 #' areas    <- image_crop_textlines(img, x, color = "red")
 #' areas$overview
 #' areas$areas
-image_crop_textlines <- function(image, geometries, color = "royalblue", border = "10x10"){
+image_crop_textlines <- function(image, geometries, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf){
   stopifnot(is.data.frame(geometries) && all(c("width", "height", "x_left", "y_top") %in% colnames(geometries)))
   db <- geometries
   if(inherits(image, "magick-image")){
@@ -45,8 +48,14 @@ image_crop_textlines <- function(image, geometries, color = "royalblue", border 
   #image_append(do.call(c, lapply(areas_img,image_border, "white", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "#000080", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "royalblue", "10x10")), stack = TRUE)
+  if(!overview){
+    return(areas_img)
+  }
+  #overview <- image_append(do.call(c, lapply(areas_img, image_border, color, border)), stack = TRUE)
+  overview <- image_merge_to_one(areas_img, color = color, border = border, trace = trace, max_width = max_width)
+  
   list(areas = areas_img, 
-       overview = image_append(do.call(c, lapply(areas_img, image_border, color, border)), stack = TRUE))
+       overview = overview)
 }
 
 
@@ -99,9 +108,12 @@ image_rbind <- function(image){
 #' @param geometries a data.frame with columns width, height, x_left, y_top indicating the areas to extract from the image
 #' @param color color to use for adding a border in the overview image. Defaults to 'royalblue'.
 #' @param border border pixels to using in the overview image. Defaults to 10x10 pixel borders.
+#' @param overview logical indicating to add the overview image of all area's below each other. Defaults to TRUE.
+#' @param max_width maximum width of the overview image. Defaults to +Inf
 #' @param trace logical indicating to trace progress
 #' @return a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines
-#' and \code{areas} is a list of \code{magick-image}'s, one for each text line 
+#' and \code{areas} is a list of \code{magick-image}'s, one for each text line \cr
+#' In case overview is set to \code{FALSE} the return value is only the list of stacked image lines. 
 #' @export
 #' @examples
 #' library(opencv) 
@@ -115,7 +127,7 @@ image_rbind <- function(image){
 #' areas    <- image_crop_textpolygons(img, x, color = "red")
 #' areas$overview
 #' areas$areas
-image_crop_textpolygons <- function(image, geometries, color = "royalblue", border = "10x10", trace = FALSE){
+image_crop_textpolygons <- function(image, geometries, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf, trace = FALSE){
   if(!requireNamespace("opencv")){
     stop("In order to use image_crop_textpolygons, install R package opencv from CRAN")
   }
@@ -132,7 +144,7 @@ image_crop_textpolygons <- function(image, geometries, color = "royalblue", bord
   txtlines  <- txtlines[which(sapply(txtlines$coords, nrow) > 0), ]
   areas_img <- lapply(seq_len(nrow(txtlines)), FUN=function(i){
     if(trace){
-      cat(sprintf("%s area %s/%s", Sys.time(), i, length(txtlines)), sep = "\n")
+      cat(sprintf("%s extracting area %s/%s", Sys.time(), i, length(txtlines)), sep = "\n")
     }
     location <- txtlines[i, ]
     pts      <- location$coords[[1]]
@@ -145,10 +157,36 @@ image_crop_textpolygons <- function(image, geometries, color = "royalblue", bord
   #image_append(do.call(c, lapply(areas_img,image_border, "white", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "#000080", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "royalblue", "10x10")), stack = TRUE)
+  if(!overview){
+    return(areas_img)
+  }
+  #overview <- image_append(do.call(c, lapply(areas_img, image_border, color, border)), stack = TRUE)
+  overview <- image_merge_to_one(areas_img, color = color, border = border, trace = trace, max_width = max_width)
   list(areas = areas_img, 
-       overview = image_append(do.call(c, lapply(areas_img, image_border, color, border)), stack = TRUE))
+       overview = overview)
 }
 
+
+image_merge_to_one <- function(areas_img, color = "royalblue", border = "10x10", trace = FALSE, max_width = +Inf){
+  add_border <- function(image){
+    if(image_info(image)$width > max_width){
+      image <- image_resize(image, geometry = max_width) 
+    }
+    out <- image_border(image, color = color, geometry = border)
+    out
+  }
+  for(i in seq_along(areas_img)){
+    if(trace){
+      cat(sprintf("%s combining area %s/%s", Sys.time(), i, length(areas_img)), sep = "\n")
+    }
+    if(i == 1){
+      overview <- add_border(areas_img[[i]])    
+    }else{
+      overview <- image_append(c(overview, add_border(areas_img[[i]])), stack = TRUE)
+    }
+  }
+  overview
+}
 
 
 #' @title Draw baselines on an image
@@ -200,10 +238,13 @@ image_draw_baselines <- function(image, x, ...){
 #' @param extend logical indicating to extend the baseline to the left and right of the image. Defaults to TRUE.
 #' @param color color to use for adding a border in the overview image. Defaults to 'royalblue'.
 #' @param border border pixels to using in the overview image. Defaults to 10x10 pixel borders.
+#' @param overview logical indicating to add the overview image of all area's below each other. Defaults to TRUE.
+#' @param max_width maximum width of the overview image. Defaults to +Inf
 #' @param trace logical indicating to trace progress
 #' @param ... further arguments currently not used
 #' @return a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines
-#' and \code{areas} is a list of \code{magick-image}'s, one for each text line 
+#' and \code{areas} is a list of \code{magick-image}'s, one for each text line \cr
+#' In case overview is set to \code{FALSE} the return value is only the list of stacked image lines. 
 #' @export
 #' @examples 
 #' library(opencv)
@@ -213,12 +254,12 @@ image_draw_baselines <- function(image, x, ...){
 #' x
 #' img      <- system.file(package = "madoc.utils", "extdata", "pagexml-example.jpg")
 #' img      <- ocv_read(img)
-#' areas    <- image_crop_baselineareas(img, x = x$baseline, extend = FALSE)
+#' areas    <- image_crop_baselineareas(img, x = x$baseline, extend = FALSE, trace = TRUE)
 #' areas$areas
 #' image_resize(areas$overview, "x600")
 #' areas    <- image_crop_baselineareas(img, x = x$baseline, extend = TRUE, color = "red")
 #' image_resize(areas$overview, "x600")
-image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue", border = "10x10", trace = FALSE, ...){
+image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf, trace = FALSE, ...){
   if(!requireNamespace("opencv")){
     stop("In order to use image_crop_baselineareas, install R package opencv from CRAN")
   }
@@ -282,8 +323,13 @@ image_crop_baselineareas <- function(image, x, extend = TRUE, color = "royalblue
   #image_append(do.call(c, lapply(areas_img,image_border, "white", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "#000080", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "royalblue", "10x10")), stack = TRUE)
+  if(!overview){
+    return(areas_img)
+  }
+  #overview <- image_append(do.call(c, lapply(areas_img, image_border, color, border)), stack = TRUE)
+  overview <- image_merge_to_one(areas_img, color = color, border = border, trace = trace, max_width = max_width)
   list(areas = areas_img, 
-       overview = image_append(do.call(c, lapply(areas_img, image_border, color, border)), stack = TRUE))
+       overview = overview)
   
 }
 

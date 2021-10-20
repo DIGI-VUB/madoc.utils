@@ -9,6 +9,8 @@ image_crop_textpolygons(
   geometries,
   color = "royalblue",
   border = "10x10",
+  overview = TRUE,
+  max_width = +Inf,
   trace = FALSE
 )
 }
@@ -21,11 +23,16 @@ image_crop_textpolygons(
 
 \item{border}{border pixels to using in the overview image. Defaults to 10x10 pixel borders.}
 
+\item{overview}{logical indicating to add the overview image of all area's below each other. Defaults to TRUE.}
+
+\item{max_width}{maximum width of the overview image. Defaults to +Inf}
+
 \item{trace}{logical indicating to trace progress}
 }
 \value{
 a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines
-and \code{areas} is a list of \code{magick-image}'s, one for each text line
+and \code{areas} is a list of \code{magick-image}'s, one for each text line \cr
+In case overview is set to \code{FALSE} the return value is only the list of stacked image lines.
 }
 \description{
 Crop out areas with text polygons from an image

@@ -10,6 +10,8 @@ image_crop_baselineareas(
   extend = TRUE,
   color = "royalblue",
   border = "10x10",
+  overview = TRUE,
+  max_width = +Inf,
   trace = FALSE,
   ...
 )
@@ -25,13 +27,18 @@ image_crop_baselineareas(
 
 \item{border}{border pixels to using in the overview image. Defaults to 10x10 pixel borders.}
 
+\item{overview}{logical indicating to add the overview image of all area's below each other. Defaults to TRUE.}
+
+\item{max_width}{maximum width of the overview image. Defaults to +Inf}
+
 \item{trace}{logical indicating to trace progress}
 
 \item{...}{further arguments currently not used}
 }
 \value{
 a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines
-and \code{areas} is a list of \code{magick-image}'s, one for each text line
+and \code{areas} is a list of \code{magick-image}'s, one for each text line \cr
+In case overview is set to \code{FALSE} the return value is only the list of stacked image lines.
 }
 \description{
 Extract areas between baselines
@@ -44,7 +51,7 @@ x        <- read_pagexml(path)
 x
 img      <- system.file(package = "madoc.utils", "extdata", "pagexml-example.jpg")
 img      <- ocv_read(img)
-areas    <- image_crop_baselineareas(img, x = x$baseline, extend = FALSE)
+areas    <- image_crop_baselineareas(img, x = x$baseline, extend = FALSE, trace = TRUE)
 areas$areas
 image_resize(areas$overview, "x600")
 areas    <- image_crop_baselineareas(img, x = x$baseline, extend = TRUE, color = "red")

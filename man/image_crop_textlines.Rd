@@ -4,7 +4,14 @@
 \alias{image_crop_textlines}
 \title{Crop out areas with text lines from an image}
 \usage{
-image_crop_textlines(image, geometries, color = "royalblue", border = "10x10")
+image_crop_textlines(
+  image,
+  geometries,
+  color = "royalblue",
+  border = "10x10",
+  overview = TRUE,
+  max_width = +Inf
+)
 }
 \arguments{
 \item{image}{\code{image} either an object of class \code{magick-image} or a path to an image file on disk}
@@ -14,10 +21,15 @@ image_crop_textlines(image, geometries, color = "royalblue", border = "10x10")
 \item{color}{color to use for adding a border in the overview image. Defaults to 'royalblue'.}
 
 \item{border}{border pixels to using in the overview image. Defaults to 10x10 pixel borders.}
+
+\item{overview}{logical indicating to add the overview image of all area's below each other. Defaults to TRUE.}
+
+\item{max_width}{maximum width of the overview image. Defaults to +Inf}
 }
 \value{
 a list with elements areas and overview where \code{overview} is a \code{magick-image} with stacked image lines
-and \code{areas} is a list of \code{magick-image}'s, one for each text line
+and \code{areas} is a list of \code{magick-image}'s, one for each text line. \cr
+In case overview is set to \code{FALSE} the return value is only the list of stacked image lines.
 }
 \description{
 Crop out areas with text lines from an image
