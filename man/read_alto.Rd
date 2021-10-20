@@ -20,9 +20,14 @@ a data.frame
 Import Alto-XML file as a data.frame. Examples where this can be used
 is for importing alto-xml files from Transkribus
 }
+\note{
+the function only handles single-page XML's
+}
 \examples{
 f <- system.file(package = "madoc.utils", "extdata", "alto-example.xml")
 x <- read_alto(f)
 f <- system.file(package = "madoc.utils", "extdata", "altoxml-example.xml")
+x <- read_alto(f)
+f <- system.file(package = "madoc.utils", "extdata", "multiregion-alto.xml")
 x <- read_alto(f)
 }

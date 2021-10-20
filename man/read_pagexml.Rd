@@ -20,7 +20,12 @@ a data.frame with columns file, id, coords and baseline
 Import Page-XML file as a data.frame. Examples where this can be used
 is for importing page-xml files from Transkribus
 }
+\note{
+the function only handles single-page XML's
+}
 \examples{
 f <- system.file(package = "madoc.utils", "extdata", "pagexml-example.xml")
+x <- read_pagexml(f)
+f <- system.file(package = "madoc.utils", "extdata", "multiregion-page.xml")
 x <- read_pagexml(f)
 }

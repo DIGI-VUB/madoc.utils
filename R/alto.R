@@ -8,10 +8,13 @@
 #' @param ... further arguments currently not used
 #' @return a data.frame
 #' @export
+#' @note the function only handles single-page XML's
 #' @examples 
 #' f <- system.file(package = "madoc.utils", "extdata", "alto-example.xml")
 #' x <- read_alto(f)
 #' f <- system.file(package = "madoc.utils", "extdata", "altoxml-example.xml")
+#' x <- read_alto(f)
+#' f <- system.file(package = "madoc.utils", "extdata", "multiregion-alto.xml")
 #' x <- read_alto(f)
 read_alto <- function(x, type = c("transkribus"), ...){
   type <- match.arg(type)
@@ -24,6 +27,7 @@ read_alto <- function(x, type = c("transkribus"), ...){
     content <- as_list(x)
     content <- content[["PrintSpace"]]
     content <- content[grepl(names(content), pattern = "TextBlock")]
+    content <- setNames(content, sapply(content, attr, which = "ID"))
     content <- lapply(content, FUN=function(textblock){
       if(FALSE){
         textblock <- unlist(textblock, recursive = FALSE, use.names = TRUE)
@@ -53,7 +57,7 @@ read_alto <- function(x, type = c("transkribus"), ...){
       }
       return(att)
     })
-    content <- data.table::rbindlist(content, fill = TRUE)  
+    content <- data.table::rbindlist(content, fill = TRUE, idcol = "textblock")  
     content
   })
   info <- data.table::rbindlist(info, fill = TRUE)
@@ -73,8 +77,11 @@ read_alto <- function(x, type = c("transkribus"), ...){
 #' @param ... further arguments currently not used
 #' @return a data.frame with columns file, id, coords and baseline
 #' @export
+#' @note the function only handles single-page XML's
 #' @examples 
 #' f <- system.file(package = "madoc.utils", "extdata", "pagexml-example.xml")
+#' x <- read_pagexml(f)
+#' f <- system.file(package = "madoc.utils", "extdata", "multiregion-page.xml")
 #' x <- read_pagexml(f)
 read_pagexml <- function(x, type = c("transkribus"), ...){
   type <- match.arg(type)
@@ -86,7 +93,7 @@ read_pagexml <- function(x, type = c("transkribus"), ...){
   info <- info[xml_name(info) %in% "TextRegion"]
   info <- lapply(info, FUN = function(x){
     textregion <- xml_attr(x, "id")
-    info <- xml_children(info)
+    info <- xml_children(x)
     info <- lapply(info, FUN = function(x){
       content <- as_list(x)
       if("id" %in% names(attributes(content))){
