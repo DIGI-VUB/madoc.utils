@@ -4,7 +4,7 @@
 #' @importFrom udpipe txt_collapse txt_recode
 #' @importFrom httr GET content
 #' @importFrom jsonlite fromJSON
-#' @importFrom stats setNames na.exclude lm predict
+#' @importFrom stats setNames lm predict
 #' @importFrom graphics lines 
 #' @importFrom grDevices dev.off
 #' @importFrom utils head tail

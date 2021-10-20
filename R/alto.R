@@ -61,6 +61,7 @@ read_alto <- function(x, type = c("transkribus"), ...){
     content
   })
   info <- data.table::rbindlist(info, fill = TRUE)
+  info <- data.table::setDF(info)
   info
 }
 
@@ -149,8 +150,9 @@ coords_xy <- function(data, split = ","){
   out <- lapply(data, FUN = function(x){
     x <- strsplit(x, split = split) 
     x <- data.frame(x = as.numeric(sapply(x, FUN = function(x) x[1])),
-                    y = as.numeric(sapply(x, FUN = function(x) x[2])), stringsAsFactors = FALSE)
-    x <- na.exclude(x)
+                    y = as.numeric(sapply(x, FUN = function(x) x[2])), 
+                    stringsAsFactors = FALSE)
+    x <- x[!is.na(x$x) & !is.na(x$y), ]
     x
   })
   out
