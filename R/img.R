@@ -437,7 +437,7 @@ extend_baselines <- function(pts, width, height){
       extended$y  <- ifelse(extended$y < 0, 0, extended$y)
       extended$y  <- ifelse(extended$y > height, height, extended$y)
       extended$x  <- ifelse(extended$x < 0, 0, extended$x)
-      extended$x  <- ifelse(extended$x > height, height, extended$x)
+      extended$x  <- ifelse(extended$x > width, width, extended$x)
     }else{
       extended <- data.frame(x = integer(), y = integer())
       #extended <- rbind(extended, pts)  
@@ -455,7 +455,7 @@ extend_baselines <- function(pts, width, height){
   extended$y  <- ifelse(extended$y < 0, 0, extended$y)
   extended$y  <- ifelse(extended$y > height, height, extended$y)
   extended$x  <- ifelse(extended$x < 0, 0, extended$x)
-  extended$x  <- ifelse(extended$x > height, height, extended$x)
+  extended$x  <- ifelse(extended$x > width, width, extended$x)
   extended
 }
 
