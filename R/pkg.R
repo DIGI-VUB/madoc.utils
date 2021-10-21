@@ -11,4 +11,5 @@
 #' @importFrom zoo na.locf
 #' @importFrom rgeos gIntersection
 #' @importFrom sp Polygon Polygons SpatialPolygons coordinates
+#' @importFrom sf st_as_sf st_make_valid st_intersection st_convex_hull as_Spatial 
 NULL

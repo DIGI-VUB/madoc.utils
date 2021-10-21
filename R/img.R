@@ -371,9 +371,28 @@ image_crop_baselineareas <- function(image, x, textregion, extend = TRUE, color 
     pts      <- polylines[[i]]
     if(!missing_textregion){
       textpolygon <- textregion[[i]]
+      #a <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords = pts)), ID = "baseline")))
+      #b <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords = textpolygon)), ID = "textregion")))
+      #area <- rgeos::gIntersection(a, b)
+      #a    <- sf::st_as_sf(a)
+      #b    <- sf::st_as_sf(b)
+      # a    <- sf::st_polygon(list(as.matrix(pts)))
+      # b    <- sf::st_polygon(list(as.matrix(textpolygon)))
+      # a    <- sf::st_make_valid(a)
+      # b    <- sf::st_make_valid(b)
+      # area <- sf::st_intersection(a, b)
+      # area <- sf::as_Spatial(area)
+      
       a <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords = pts)), ID = "baseline")))
       b <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords = textpolygon)), ID = "textregion")))
-      area <- rgeos::gIntersection(a, b)
+      #area <- rgeos::gIntersection(a, b)
+      a    <- sf::st_as_sf(a)
+      a    <- sf::st_make_valid(a)
+      b    <- sf::st_as_sf(b)
+      b    <- sf::st_make_valid(b)
+      area <- sf::st_intersection(a, b)
+      area <- sf::st_convex_hull(area)
+      area <- sf::as_Spatial(area)
       pts  <- coords(area)
       pts  <- list(x = pts[, "x"], y = pts[, "y"])
     }

@@ -21,7 +21,7 @@ Imports:
     grDevices,
     utils,
     zoo,
-    sp,
+    sp, sf,
     rgeos
 Suggests:
     opencv (>= 0.2)
