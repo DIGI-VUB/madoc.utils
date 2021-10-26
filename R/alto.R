@@ -101,7 +101,11 @@ read_pagexml <- function(x, type = c("transkribus"), ...){
       if("id" %in% names(attributes(content))){
         d <- list(id       = attributes(content)$id,
                   coords   = attributes(content$Coords)$points,
-                  baseline = attributes(content$Baseline)$points)  
+                  baseline = attributes(content$Baseline)$points)
+        if("TextEquiv" %in% names(content)){
+          d$text       <- paste(unlist(content$TextEquiv), collapse = "\n")
+          d$confidence <- attr(content$TextEquiv, "conf")
+        }
       }else{
         d <- attributes(content)  
       }
