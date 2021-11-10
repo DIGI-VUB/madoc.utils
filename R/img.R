@@ -150,6 +150,9 @@ image_crop_textpolygons <- function(image, geometries, color = "royalblue", bord
   }
   stopifnot(is.data.frame(geometries) && all(c("coords", "baseline") %in% colnames(geometries)))
   db <- geometries
+  if(inherits(image, "magick-image")){
+    image <- magick_to_opencv(image)
+  }
   if(inherits(image, "opencv-image")){
     img <- image
   }else{
@@ -186,6 +189,18 @@ image_crop_textpolygons <- function(image, geometries, color = "royalblue", bord
        overview = overview)
 }
 
+
+magick_to_opencv <- function(img){
+  p <- tempfile()
+  on.exit({
+    if(file.exists(p)){
+      file.remove(p) 
+    }
+  })
+  magick::image_write(img, path = p)
+  image <- opencv::ocv_read(p)
+  image
+}
 
 image_merge_to_one <- function(areas_img, color = "royalblue", border = "10x10", trace = FALSE, max_width = +Inf){
   add_border <- function(image){
@@ -296,6 +311,9 @@ image_draw_baselines <- function(image, x, ...){
 image_crop_baselineareas <- function(image, x, textregion, extend = TRUE, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf, trace = FALSE, ...){
   if(!requireNamespace("opencv")){
     stop("In order to use image_crop_baselineareas, install R package opencv from CRAN")
+  }
+  if(inherits(image, "magick-image")){
+    image <- magick_to_opencv(image)
   }
   if(inherits(image, "opencv-image")){
     img <- image
