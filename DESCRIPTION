@@ -11,6 +11,7 @@ Description: Utilities to work with 'Madoc' <https://github.com/digirati-co-uk/m
     The platform can be used for all kinds of crowdsourcing activities in the domain of digital humanities.
 URL: https://github.com/DIGI-VUB/madoc.utils
 Imports:
+    R6,
     xml2,
     jsonlite,
     httr,
@@ -22,7 +23,8 @@ Imports:
     utils,
     zoo,
     sp, sf,
-    rgeos
+    rgeos,
+    glue
 Suggests:
     opencv (>= 0.2)
 License: MIT + file LICENSE

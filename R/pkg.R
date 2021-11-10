@@ -12,4 +12,6 @@
 #' @importFrom rgeos gIntersection
 #' @importFrom sp Polygon Polygons SpatialPolygons coordinates
 #' @importFrom sf st_as_sf st_make_valid st_intersection st_convex_hull as_Spatial 
+#' @importFrom R6 R6Class
+#' @importFrom glue glue
 NULL
