@@ -16,8 +16,8 @@ a data.frame with columns manifest_id and the columns available in the metadata,
 Convert manifest metadata to a data.frame
 }
 \examples{
-site      <- "https://www.madoc.ugent.be/s/brugse-vrije"
-projects  <- madoc_projects(site)
-manifests <- madoc_collection(site = site, id = projects$collection_id)
+projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+manifests <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+                              id = projects$collection_id)
 metadata  <- madoc_manifest_metadata(manifests)
 }

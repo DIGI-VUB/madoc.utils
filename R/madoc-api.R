@@ -12,16 +12,16 @@
 #' }
 madoc_projects <- function(site){
   ## Get the projects
-  msg      <- GET(sprintf("%s/madoc/api/projects", site), encode = "json")
-  response <- content(msg, as = "text")
-  info     <- fromJSON(response, simplifyVector = FALSE, simplifyDataFrame = FALSE, simplifyMatrix = FALSE)
+  msg      <- httr::GET(sprintf("%s/madoc/api/projects", site), encode = "json")
+  response <- httr::content(msg, as = "text")
+  info     <- jsonlite::fromJSON(response, simplifyVector = FALSE, simplifyDataFrame = FALSE, simplifyMatrix = FALSE)
   info     <- info$projects
   info <- lapply(info, FUN = function(x){
-    list(project_id = x$id, 
+    list(project_id    = x$id, 
          collection_id = x$collection_id, 
-         slug = x$slug, 
-         label = txt_collapse(unlist(x$label, use.names = FALSE), "\n"),
-         summary = txt_collapse(unlist(x$summary, use.names = FALSE), "\n"))
+         slug          = x$slug, 
+         label         = udpipe::txt_collapse(unlist(x$label, use.names = FALSE), "\n"),
+         summary       = udpipe::txt_collapse(unlist(x$summary, use.names = FALSE), "\n"))
   })
   info <- data.table::rbindlist(info)
   info <- data.table::setDF(info)
@@ -37,10 +37,11 @@ madoc_projects <- function(site){
 #' @export
 #' @return a data.frame with columns collection_id, manifest_id, manifest_type, manifest_label, manifest_canvasCount, manifest_thumbnail and manifest_metadata
 #' @examples 
-#' site      <- "https://www.madoc.ugent.be/s/brugse-vrije"
-#' projects  <- madoc_projects(site)
-#' manifests <- madoc_collection(site = site, id = projects$collection_id)
-#' manifests <- madoc_collection(site = site, id = projects$collection_id, tidy_metadata = TRUE)
+#' projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+#' manifests <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                               id = projects$collection_id)
+#' manifests <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                               id = projects$collection_id, tidy_metadata = TRUE)
 madoc_collection <- function(site, id, tidy_metadata = FALSE){
   parse_collection <- function(response){
     info     <- fromJSON(response, simplifyDataFrame = FALSE, simplifyVector = FALSE, simplifyMatrix = FALSE)
@@ -102,13 +103,15 @@ madoc_collection <- function(site, id, tidy_metadata = FALSE){
 #' @export
 #' @return a data.frame with columns manifest_id, manifest_label, manifest_thumbnail, canvas_id, canvas_thumbnail, is_published
 #' @examples 
-#' site      <- "https://www.madoc.ugent.be/s/brugse-vrije"
-#' projects  <- madoc_projects(site)
-#' manifests <- madoc_collection(site = site, id = projects$collection_id)
+#' projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+#' manifests <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                               id = projects$collection_id)
 #' 
-#' canvasses <- madoc_manifest(site = site, id = sample(manifests$manifest_id, size = 1))
+#' canvasses <- madoc_manifest(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                             id = sample(manifests$manifest_id, size = 1))
 #' ids       <- sample(manifests$manifest_id, size = 10)
-#' canvasses <- madoc_manifest(site = site, id = ids)
+#' canvasses <- madoc_manifest(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                             id = ids)
 madoc_manifest <- function(site, id){
   if(length(id) > 1){
     out <- lapply(id, FUN = function(id) madoc_manifest(site, id))
@@ -139,9 +142,9 @@ madoc_manifest <- function(site, id){
 #' @export
 #' @return a data.frame with columns manifest_id and the columns available in the metadata, lowercased
 #' @examples 
-#' site      <- "https://www.madoc.ugent.be/s/brugse-vrije"
-#' projects  <- madoc_projects(site)
-#' manifests <- madoc_collection(site = site, id = projects$collection_id)
+#' projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+#' manifests <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                               id = projects$collection_id)
 #' metadata  <- madoc_manifest_metadata(manifests)
 madoc_manifest_metadata <- function(x){
   stopifnot(is.data.frame(x) && all(c("manifest_id", "manifest_metadata") %in% colnames(x)))
@@ -164,13 +167,15 @@ madoc_manifest_metadata <- function(x){
 #' @export
 #' @return a data.frame with columns canvas_id, height, width, image_url
 #' @examples 
-#' site      <- "https://www.madoc.ugent.be/s/brugse-vrije"
-#' projects  <- madoc_projects(site)
-#' manifests <- madoc_collection(site = site, id = projects$collection_id)
+#' projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+#' manifests <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                               id = projects$collection_id)
 #' 
 #' ids               <- sample(manifests$manifest_id, size = 10)
-#' canvasses         <- madoc_manifest(site = site, id = ids)
-#' canvasses_urls    <- madoc_canvas_image(site, id = canvasses$canvas_id)
+#' canvasses         <- madoc_manifest(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                                     id = ids)
+#' canvasses_urls    <- madoc_canvas_image("https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                                         id = canvasses$canvas_id)
 #' canvasses         <- merge(canvasses, canvasses_urls, by = "canvas_id")
 #' 
 #' library(magick)
@@ -207,13 +212,15 @@ madoc_canvas_image <- function(site, id){
 #' \item{id is vector of length > 1: }{a data.frame with columns canvas_id, document_id, document_type, document_label, model_id, status, authors, id, type, value, label, id_revision, id_revises, selector_state, selector_type, selector_id. Containing only rows for canvasses which have annotations.}
 #' }
 #' @examples 
-#' site         <- "https://www.madoc.ugent.be/s/brugse-vrije"
-#' projects     <- madoc_projects(site)
-#' manifests    <- madoc_collection(site = site, id = projects$collection_id)
+#' projects     <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+#' manifests    <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                                  id = projects$collection_id)
 #' 
 #' ids          <- sample(manifests$manifest_id, size = 10)
-#' canvasses    <- madoc_manifest(site = site, id = ids)
-#' annotations  <- madoc_canvas_model(site = site, id = ids)
+#' canvasses    <- madoc_manifest(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                                id = ids)
+#' annotations  <- madoc_canvas_model(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                                    id = ids)
 madoc_canvas_model <- function(site, id){
   if(length(id) > 1){
     out <- lapply(id, FUN = function(id) madoc_canvas_model(site, id))
@@ -278,4 +285,122 @@ madoc_canvas_model <- function(site, id){
   list(canvas_id = id, 
        annotations = details)
 }
+
+
+
+
+#' @title Get Madoc tasks 
+#' @description Retrieve tasks from Madoc, namely manifest and canvas tass
+#' @param site character string with the site
+#' @param project character string with the project name of the site
+#' @param id a vector of manifest or task identifiers
+#' @param type character string with the type of task, either 'manifest' or 'canvas'
+#' @export
+#' @return a data.frame with task information
+#' @examples 
+#' projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+#' projects  <- subset(projects, slug == "brugse-vrije-gebruikerstest")
+#' manifests <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                               id = projects$collection_id, tidy_metadata = TRUE)
+#' canvasses <- madoc_manifest(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                             id = manifests$manifest_id)
+#' ids       <- sample(manifests$manifest_id, size = 5)
+#' x         <- madoc_tasks(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                          project = "brugse-vrije-gebruikerstest", 
+#'                          id = ids, type = "manifest")
+#' ids       <- sample(canvasses$canvas_id, size = 5)
+#' x         <- madoc_tasks(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+#'                          project = "brugse-vrije-gebruikerstest", 
+#'                          id = canvasses$canvas_id, type = "canvas")
+madoc_tasks <- function(site, project, id, type = c("manifest", "canvas")){
+  # /s/:slug/madoc/api/projects/:projectSlug/manifest-tasks/:manifestId
+  # /s/:slug/madoc/api/projects/:projectSlug/canvas-tasks/:canvasId
+  type <- match.arg(type)
+  if(length(id) > 1){
+    out <- lapply(id, FUN = function(id, site, project, type){
+      madoc_tasks(site = site, project = project, id = id, type = type) 
+    }, site = site, project = project, type = type)
+    names(out) <- id
+    out <- suppressWarnings(setDF(rbindlist(out, fill = TRUE, use.names = TRUE, idcol = sprintf("%s_id", type))))
+    return(out)
+  }
+  if(type == "manifest"){
+    url <- sprintf("%s/madoc/api/projects/%s/manifest-tasks/%s", site, project, id)  
+  }else if(type == "canvas"){
+    url <- sprintf("%s/madoc/api/projects/%s/canvas-tasks/%s", site, project, id)  
+  }
+  msg      <- httr::GET(url, encode = "json")
+  response <- httr::content(msg, as = "text")
+  info     <- jsonlite::fromJSON(response, simplifyVector = FALSE, simplifyDataFrame = FALSE, simplifyMatrix = FALSE)
+  if(type == "manifest"){
+    task <- tidy_manifest(info)
+    return(task)
+  }else if(type == "canvas"){
+    task_manifest           <- tidy_manifest(info)
+    task                    <- info$canvasTask
+    if("created_at" %in% names(task)){
+      task$created_at  <- as.POSIXct(task$created_at / 1000, origin = "1970-01-01")
+    }
+    if("modified_at" %in% names(task)){
+      task$modified_at <- as.POSIXct(task$modified_at / 1000, origin = "1970-01-01")  
+    }
+    task$manifest           <- list(task_manifest)
+    task$isManifestComplete <- info$isManifestComplete
+    task$canClaimManifest   <- info$canClaimManifest
+    task$totalContributors  <- info$totalContributors
+    task$maxContributors    <- info$maxContributors
+    task$canUserSubmit      <- info$canUserSubmit
+    task$parameters         <- list(task$parameters)
+    task$state              <- list(task$state)
+    exclude  <- c("metadata")
+    fields   <- intersect(names(task), 
+                          setdiff(c("id", "name", "status", "status_text", "type", "parameters", 
+                                    "subject", "subject_parent", "root_task", "modified_at", "state", 
+                                    "creator", "assignee", "parent_task", "metadata", "manifest",
+                                    "isManifestComplete", "canClaimManifest", "totalContributors", 
+                                    "maxContributors", "canUserSubmit"), 
+                                  exclude))
+    task <- task[fields]
+    return(task)
+  }
+  info
+}
+
+
+tidy_manifest <- function(info){
+  task                    <- info$manifestTask
+  if("created_at" %in% names(task)){
+    task$created_at  <- as.POSIXct(task$created_at / 1000, origin = "1970-01-01")
+  }
+  if("modified_at" %in% names(task)){
+    task$modified_at <- as.POSIXct(task$modified_at / 1000, origin = "1970-01-01")  
+  }
+  task$isManifestComplete <- info$isManifestComplete
+  task$canClaimManifest   <- info$canClaimManifest
+  task$totalContributors  <- info$totalContributors
+  task$maxContributors    <- info$maxContributors
+  task$canUserSubmit      <- info$canUserSubmit
+  task$creator            <- task$creator$id
+  task$subtasks           <- lapply(task$subtasks, FUN = function(x){
+    x$assignee <- x$assignee$id
+    x
+  })
+  task$subtasks           <- suppressWarnings(setDF(rbindlist(task$subtasks, fill = TRUE, use.names = TRUE)))
+  task$subtasks           <- list(task$subtasks)
+  task$parameters         <- list(task$parameters)
+  task$state              <- list(task$state)
+  exclude  <- c("pagination", "metadata", "events", "context")
+  fields   <- intersect(names(task), 
+                        setdiff(c("id", "name", "description", "type", "subject", "status", "status_text", 
+                                  "state", "created_at", "parameters", "context", "modified_at", 
+                                  "root_task", "subject_parent", "delegated_owners", "delegated_task", 
+                                  "creator", "assignee", "parent_task", "events", "metadata", "subtasks", 
+                                  "pagination", "isManifestComplete", "canClaimManifest", "totalContributors", 
+                                  "maxContributors", "canUserSubmit"), 
+                                exclude))
+  task <- task[fields]
+  task
+}
+
+
 

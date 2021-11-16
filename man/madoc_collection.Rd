@@ -21,8 +21,9 @@ Get a data.frame of all manifests which are part of a collection by using the Ma
 This function performs a GET request to /madoc/api/collections and handles pagination
 }
 \examples{
-site      <- "https://www.madoc.ugent.be/s/brugse-vrije"
-projects  <- madoc_projects(site)
-manifests <- madoc_collection(site = site, id = projects$collection_id)
-manifests <- madoc_collection(site = site, id = projects$collection_id, tidy_metadata = TRUE)
+projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+manifests <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+                              id = projects$collection_id)
+manifests <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+                              id = projects$collection_id, tidy_metadata = TRUE)
 }

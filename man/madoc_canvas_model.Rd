@@ -23,11 +23,13 @@ Get a data.frame of annotations by using the Madoc API's.\cr
 This function performs a GET request to /madoc/api/canvases/{canvas_id}/models
 }
 \examples{
-site         <- "https://www.madoc.ugent.be/s/brugse-vrije"
-projects     <- madoc_projects(site)
-manifests    <- madoc_collection(site = site, id = projects$collection_id)
+projects     <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+manifests    <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+                                 id = projects$collection_id)
 
 ids          <- sample(manifests$manifest_id, size = 10)
-canvasses    <- madoc_manifest(site = site, id = ids)
-annotations  <- madoc_canvas_model(site = site, id = ids)
+canvasses    <- madoc_manifest(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+                               id = ids)
+annotations  <- madoc_canvas_model(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+                                   id = ids)
 }

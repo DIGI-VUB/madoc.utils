@@ -19,13 +19,15 @@ Get a data.frame of canvas information (image height/width + image_url) by using
 This function performs a GET request to /madoc/api/canvases
 }
 \examples{
-site      <- "https://www.madoc.ugent.be/s/brugse-vrije"
-projects  <- madoc_projects(site)
-manifests <- madoc_collection(site = site, id = projects$collection_id)
+projects  <- madoc_projects("https://www.madoc.ugent.be/s/brugse-vrije")
+manifests <- madoc_collection(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+                              id = projects$collection_id)
 
 ids               <- sample(manifests$manifest_id, size = 10)
-canvasses         <- madoc_manifest(site = site, id = ids)
-canvasses_urls    <- madoc_canvas_image(site, id = canvasses$canvas_id)
+canvasses         <- madoc_manifest(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
+                                    id = ids)
+canvasses_urls    <- madoc_canvas_image("https://www.madoc.ugent.be/s/brugse-vrije", 
+                                        id = canvasses$canvas_id)
 canvasses         <- merge(canvasses, canvasses_urls, by = "canvas_id")
 
 library(magick)
