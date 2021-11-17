@@ -72,7 +72,6 @@ madoc_taskdetails <- function(site, id){
   ## https://github.com/digirati-co-uk/tasks-api/blob/main/src/router.ts
   if(length(id) > 1){
     out <- lapply(id, FUN = function(id, site){
-      print(id)
       madoc_taskdetails(site = site, id = id) 
     }, site = site)
     names(out) <- id
