@@ -304,10 +304,12 @@ madoc_canvas_model <- function(site, id){
 #'                               id = projects$collection_id, tidy_metadata = TRUE)
 #' canvasses <- madoc_manifest(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
 #'                             id = manifests$manifest_id)
+#' ids       <- manifests$manifest_id                   
 #' ids       <- sample(manifests$manifest_id, size = 5)
 #' x         <- madoc_tasks(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
 #'                          project = "brugse-vrije-gebruikerstest", 
 #'                          id = ids, type = "manifest")
+#' ids       <- canvasses$canvas_id                   
 #' ids       <- sample(canvasses$canvas_id, size = 5)
 #' x         <- madoc_tasks(site = "https://www.madoc.ugent.be/s/brugse-vrije", 
 #'                          project = "brugse-vrije-gebruikerstest", 
@@ -365,6 +367,18 @@ madoc_tasks <- function(site, project, id, type = c("manifest", "canvas")){
   }
   info
 }
+
+
+
+# madoc_login("https://www.madoc.ugent.be/s/brugse-vrije", 
+#             email = "jan.wijffels@vub.be", password = Sys.getenv("MADOC_PWD"))
+# msg      <- httr::GET("https://www.madoc.ugent.be/api/tasks/2fae7b9e-7997-433d-b1fc-251995f00cc4", 
+#                       madoc.utils:::.madoc$tokenheader,
+#                       encode = "json")
+# response <- httr::content(msg, as = "text")
+# info     <- jsonlite::fromJSON(response)
+
+
 
 
 tidy_manifest <- function(info){
