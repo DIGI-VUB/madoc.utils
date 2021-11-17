@@ -42,7 +42,10 @@ madoc_users <- function(){
                         encode = "json")
   response <- httr::content(msg, as = "text")
   info     <- jsonlite::fromJSON(response)
-  info$users
+  
+  info     <- info$users
+  info$madoc_id <- paste("urn:madoc:user:", info$id, sep = "")
+  info
 }
 
 
@@ -95,16 +98,21 @@ madoc_taskdetails <- function(site, id){
   if("modified_at" %in% names(task)){
     task$modified_at <- as.POSIXct(task$modified_at / 1000, origin = "1970-01-01")  
   }
-  task$context <- txt_collapse(task$context, collapse = ";")
-  task$creator <- task$creator$id
-  task$events  <- txt_collapse(task$events, collapse = ";")
-  task$state   <- list(task$state)
-  task$subtasks <- lapply(task$subtasks, FUN = function(x){
+  task$context    <- txt_collapse(task$context, collapse = ";")
+  task$creator    <- task$creator$id
+  task$events     <- txt_collapse(task$events, collapse = ";")
+  task$state      <- list(task$state)
+  task$parameters <- list(task$parameters)
+  task$assignee   <- txt_collapse(task$assignee$id)
+  task$events     <- list(task$events)
+  task$subtasks   <- lapply(task$subtasks, FUN = function(x){
     fields <- c("id", "type", "name", "status", "subject", "status_text", "state", "metadata")
     fields <- setdiff(fields, c("metadata"))
     x <- x[intersect(names(x), fields)]
+    x$id_revision      <- txt_collapse(x$state$revisionId)
+    x$id_task_review   <- txt_collapse(x$state$reviewTask)
+    x$id_task_manifest <- txt_collapse(x$state$userManifestTask)
     x$state <- list(x$state)
-    
     x <- as.data.table(x)
     x
   })
