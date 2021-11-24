@@ -255,7 +255,45 @@ image_draw_baselines <- function(image, x, ...){
   plt <- image_draw(img)
   lapply(x, FUN = function(l){
     if("x" %in% names(l) & length(l$x) > 0){
-      lines(l$x, l$y, ...) 
+      graphics::lines(l$x, l$y, ...) 
+    }
+  })
+  invisible(dev.off())
+  plt
+}
+
+
+
+#' @title Draw polygons on an image
+#' @description Draw polygons on an image
+#' @param image \code{image} either an object of class \code{magick-image} or a path to an image file on disk
+#' @param x a list vector where each list element contains columns x and y indicating the positions of the polygon
+#' @param ... further arguments passed on to \code{\link{polygon}}
+#' @return a \code{magick-image}
+#' @export
+#' @examples
+#' library(magick)
+#' path     <- system.file(package = "madoc.utils", "extdata", "pagexml-example.xml")
+#' x        <- read_pagexml(path)
+#' x
+#' 
+#' img      <- system.file(package = "madoc.utils", "extdata", "pagexml-example.jpg")
+#' img      <- image_read(img)
+#' plt      <- image_draw_polygons(img, x$coords, col = "#FF000080", border = "blue", lwd = 2)
+#' plt
+image_draw_polygons <- function(image, x, ...){
+  if(inherits(image, "magick-image")){
+    img <- image
+  }else{
+    image <- as.character(image)
+    stopifnot(file.exists(image))
+    img <- image_read(image)
+  }
+  
+  plt <- image_draw(img)
+  lapply(x, FUN = function(l){
+    if("x" %in% names(l) & length(l$x) > 0){
+      graphics::lines(l$x, l$y, ...) 
     }
   })
   invisible(dev.off())

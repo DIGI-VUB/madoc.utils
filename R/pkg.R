@@ -5,7 +5,7 @@
 #' @importFrom httr GET content
 #' @importFrom jsonlite fromJSON
 #' @importFrom stats setNames lm predict
-#' @importFrom graphics lines 
+#' @importFrom graphics lines polygon
 #' @importFrom grDevices dev.off
 #' @importFrom utils head tail
 #' @importFrom zoo na.locf
