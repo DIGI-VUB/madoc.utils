@@ -293,7 +293,7 @@ image_draw_polygons <- function(image, x, ...){
   plt <- image_draw(img)
   lapply(x, FUN = function(l){
     if("x" %in% names(l) & length(l$x) > 0){
-      graphics::lines(l$x, l$y, ...) 
+      graphics::polygon(l$x, l$y, ...) 
     }
   })
   invisible(dev.off())
@@ -311,6 +311,7 @@ image_draw_polygons <- function(image, x, ...){
 #' @param textregion a list vector of the same length of \code{x} where each list element contains columns x and y indicating the positions of textregion. 
 #' The extracted areas can not pass these boundaries
 #' @param extend logical indicating to extend the baseline to the left and right of the image. Defaults to TRUE.
+#' @param horiz logical indicating to extend the baselines horizontally. Defaults to FALSE.
 #' @param color color to use for adding a border in the overview image. Defaults to 'royalblue'.
 #' @param border border pixels to using in the overview image. Defaults to 10x10 pixel borders.
 #' @param overview logical indicating to add the overview image of all area's below each other. Defaults to TRUE.
@@ -346,7 +347,7 @@ image_draw_polygons <- function(image, x, ...){
 #'                                      extend = TRUE, overview = FALSE)
 #' overview <- image_rbind(areas, color = "grey", geometry = "5x5")
 #' image_resize(overview, "600")                                      
-image_crop_baselineareas <- function(image, x, textregion, extend = TRUE, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf, trace = FALSE, ...){
+image_crop_baselineareas <- function(image, x, textregion, extend = TRUE, horiz = FALSE, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf, trace = FALSE, ...){
   if(!requireNamespace("opencv")){
     stop("In order to use image_crop_baselineareas, install R package opencv from CRAN")
   }
@@ -394,18 +395,31 @@ image_crop_baselineareas <- function(image, x, textregion, extend = TRUE, color 
   if(!missing_textregion){
     textregion <- textregion[idx_ok]
   }
+  polylines_unchanged <- polylines
   for(i in rev(seq_len(length(polylines)))){
     pts <- polylines[[i]]
     if(i == 1){
-      left  <- 0
-      right <- width - 1
-      left  <- min(pts$x)
-      right <- max(pts$x)
+      left     <- 0
+      right    <- width - 1
+      left     <- min(pts$x)
+      right    <- max(pts$x)
       previous <- data.frame(x = c(left, right),
                              y = c(0, 0))
+      previous_unchanged <- previous
     }else{
       previous <- polylines[[i-1]]
+      previous_unchanged <- polylines_unchanged[[i-1]]
     }
+    ## make sure at least goes up
+    idx_x_minimum <- which.min(previous$x)
+    idx_x_maximum <- which.max(previous$x)
+    previous$x[idx_x_minimum] <- ifelse(previous$x[idx_x_minimum] > min(pts$x), min(pts$x), previous$x[idx_x_minimum])
+    previous$x[idx_x_maximum] <- ifelse(previous$x[idx_x_maximum] < max(pts$x), max(pts$x), previous$x[idx_x_maximum])
+    if(horiz){
+      previous$x <- ifelse(previous$x < min(pts$x), min(pts$x), previous$x)
+      previous$x <- ifelse(previous$x > max(pts$x), max(pts$x), previous$x)  
+    }
+    ## combine current baseline with the points of the previous baseline
     pts <- rbind(previous, pts[order(rev(seq_len(nrow(pts)))), ])
     pts$y <- round(pts$y, digits = 0)
     polylines[[i]] <- pts

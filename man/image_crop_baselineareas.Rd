@@ -9,6 +9,7 @@ image_crop_baselineareas(
   x,
   textregion,
   extend = TRUE,
+  horiz = FALSE,
   color = "royalblue",
   border = "10x10",
   overview = TRUE,
@@ -26,6 +27,8 @@ image_crop_baselineareas(
 The extracted areas can not pass these boundaries}
 
 \item{extend}{logical indicating to extend the baseline to the left and right of the image. Defaults to TRUE.}
+
+\item{horiz}{logical indicating to extend the baselines horizontally. Defaults to FALSE.}
 
 \item{color}{color to use for adding a border in the overview image. Defaults to 'royalblue'.}
 
