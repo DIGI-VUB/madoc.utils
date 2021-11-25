@@ -10,6 +10,7 @@ image_crop_baselineareas(
   textregion,
   extend = TRUE,
   horiz = FALSE,
+  enlarge = 0,
   color = "royalblue",
   border = "10x10",
   overview = TRUE,
@@ -29,6 +30,8 @@ The extracted areas can not pass these boundaries}
 \item{extend}{logical indicating to extend the baseline to the left and right of the image. Defaults to TRUE.}
 
 \item{horiz}{logical indicating to extend the baselines horizontally. Defaults to FALSE.}
+
+\item{enlarge}{argument passed on to \code{st::buffer} to increase the size of the extracted polygon}
 
 \item{color}{color to use for adding a border in the overview image. Defaults to 'royalblue'.}
 

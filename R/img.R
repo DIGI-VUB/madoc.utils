@@ -312,6 +312,7 @@ image_draw_polygons <- function(image, x, ...){
 #' The extracted areas can not pass these boundaries
 #' @param extend logical indicating to extend the baseline to the left and right of the image. Defaults to TRUE.
 #' @param horiz logical indicating to extend the baselines horizontally. Defaults to FALSE.
+#' @param enlarge argument passed on to \code{st::buffer} to increase the size of the extracted polygon
 #' @param color color to use for adding a border in the overview image. Defaults to 'royalblue'.
 #' @param border border pixels to using in the overview image. Defaults to 10x10 pixel borders.
 #' @param overview logical indicating to add the overview image of all area's below each other. Defaults to TRUE.
@@ -347,7 +348,7 @@ image_draw_polygons <- function(image, x, ...){
 #'                                      extend = TRUE, overview = FALSE)
 #' overview <- image_rbind(areas, color = "grey", geometry = "5x5")
 #' image_resize(overview, "600")                                      
-image_crop_baselineareas <- function(image, x, textregion, extend = TRUE, horiz = FALSE, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf, trace = FALSE, ...){
+image_crop_baselineareas <- function(image, x, textregion, extend = TRUE, horiz = FALSE, enlarge = 0, color = "royalblue", border = "10x10", overview = TRUE, max_width = +Inf, trace = FALSE, ...){
   if(!requireNamespace("opencv")){
     stop("In order to use image_crop_baselineareas, install R package opencv from CRAN")
   }
@@ -384,7 +385,13 @@ image_crop_baselineareas <- function(image, x, textregion, extend = TRUE, horiz 
       pts
     })
   }
-  
+  limitxy <- function(pts, width, height){
+    pts$x <- ifelse(pts$x < 0, 0, pts$x)
+    pts$x <- ifelse(pts$x >= width, width - 1, pts$x)
+    pts$y <- ifelse(pts$y < 0, 0, pts$y)
+    pts$y <- ifelse(pts$y >= height, height - 1, pts$y)
+    pts
+  }
   if(extend){
     x <- lapply(x, extend_baselines, width = width - 1, height = height - 1)
   }
@@ -434,7 +441,7 @@ image_crop_baselineareas <- function(image, x, textregion, extend = TRUE, horiz 
     colnames(all) <- c("x", "y")
     all
   }  
-  areas_img <- lapply(seq_len(length(polylines)), FUN=function(i){
+  areas_img <- lapply(seq_len(length(polylines)), FUN=function(i, enlarge){
     if(trace){
       cat(sprintf("%s area %s/%s", Sys.time(), i, length(polylines)), sep = "\n")
     }
@@ -461,18 +468,34 @@ image_crop_baselineareas <- function(image, x, textregion, extend = TRUE, horiz 
       b    <- sf::st_as_sf(b)
       b    <- sf::st_make_valid(b)
       area <- sf::st_intersection(a, b)
-      area <- sf::st_convex_hull(area)
-      area <- sf::as_Spatial(area)
-      pts  <- coords(area)
-      pts  <- list(x = pts[, "x"], y = pts[, "y"])
+    }else{
+      a    <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords = pts)), ID = "baseline")))
+      a    <- sf::st_as_sf(a)
+      area <- sf::st_make_valid(a)
     }
+    area <- sf::st_convex_hull(area)
+    if(enlarge != 0){
+      area <- sf::st_buffer(area, dist = enlarge)  
+    }
+    if(sf::st_is_empty(area)){
+      return(NULL)
+    }
+    area <- sf::as_Spatial(area)
+    pts  <- coords(area)
+    pts  <- list(x = pts[, "x"], y = pts[, "y"])
+    pts  <- limitxy(pts, width = width, height = height)
+    
     area     <- opencv::ocv_polygon(img, pts, crop = TRUE)
     #area     <- opencv::ocv_bbox(area, pts)
     area     <- opencv::ocv_bitmap(area)
     area     <- magick::image_read(area)
     area
-  })
+  }, enlarge = enlarge)
   names(areas_img) <- names(polylines)
+  idx <- sapply(areas_img, is.null)
+  if(sum(idx) > 0){
+    areas_img <- areas_img[which(!idx)]
+  }
   #image_append(do.call(c, lapply(areas_img,image_border, "white", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "#000080", "10x10")), stack = TRUE)
   #image_append(do.call(c, lapply(areas_img,image_border, "royalblue", "10x10")), stack = TRUE)
