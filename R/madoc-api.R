@@ -277,7 +277,7 @@ madoc_canvas_model <- function(site, id){
     annotations                <- data.table::setcolorder(annotations, neworder = c(first, setdiff(colnames(annotations), first)))
     annotations
   })
-  details <- data.table::rbindlist(details)
+  details <- data.table::rbindlist(details, use.names = TRUE, fill = TRUE)
   details <- data.table::setDF(details)
   if(ncol(details) == 0){
     details <- data.frame()
