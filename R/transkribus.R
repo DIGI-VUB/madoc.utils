@@ -24,12 +24,13 @@
 #' pages         <- api$list_document(collection = id_collection, document = id_document)
 #' pages
 #' 
-#' ## Upload some documents
+#' ## Create a collection, upload some images to the collection, delete it again
+#' id  <- api$create_collection(label = "example-collection")
 #' img <- c(system.file(package = "madoc.utils", "extdata", "alto-example.jpg"),
 #'          system.file(package = "madoc.utils", "extdata", "example.png"))
-#' subset(collections, colName == "test")$colId
-#' api$upload(data = img, collection = subset(collections, colName == "test")$colId, 
-#'            title = paste("Upload", Sys.time()), author = "R-API")
+#' api$upload(data = img, collection = id, title = paste("Upload", Sys.time()), author = "R-API")
+#' api$list_collection(collection = id)           
+#' api$delete_collection(collection = id)
 #' 
 #' ## Look at relevant models and dictionaries
 #' dicts    <- api$list_dictionaries()
@@ -50,6 +51,12 @@
 #' 
 #' 
 #' \dontrun{
+#' id  <- api$create_collection(label = "test-collection")
+#' img <- c(system.file(package = "madoc.utils", "extdata", "example.png"),
+#'          system.file(package = "madoc.utils", "extdata", "alto-example.jpg"))
+#' api$upload(data = img, collection = id, title = "Doc with 2 images", author = "R-API")
+#' api$delete_collection(collection = id)
+#' 
 #' ##
 #' ## This section shows how to transcribe using the API
 #' ##    >> note that this consumes Transkribus credits
@@ -57,13 +64,14 @@
 #' ##
 #' ## Inspect one image and transcribe it
 #' ##
-#' ##  - id_collection <- 123580 ## test collection
-#' ##  - id_document   <- 817369 ## test document in that test collection
 #' ##  - id_model      <- 21683  ## Dutch Mountains HTR+
-#' pages         <- api$list_document(collection = 123580, document = 817369)
+#' id_collection <- id
+#' id_document   <- docs$docId
+#' docs          <- api$list_collection(collection = id_collection)
+#' pages         <- api$list_document(collection = id_collection, document = id_document)
 #' page          <- head(pages, n = 1)
-#' id_job        <- api$transcribe(collection = 123580, document = 817369, 
-#'                                 page = page$pageId,
+#' id_job        <- api$transcribe(collection = id_collection, document = id_document, 
+#'                                 page = 1,
 #'                                 model = 21683, 
 #'                                 dictionary = "Combined_Dutch_Model_M1.dict")
 #' x             <- read_pagexml(page$page_xml) 
@@ -123,6 +131,24 @@ Transkribus <- R6Class("Transkribus",
                       }
                       info
                     },
+                    #' @description Create a collection
+                    #' @param label character string with the name of the collection to create
+                    create_collection = function(url = "https://transkribus.eu/TrpServer/rest/collections/createCollection", label){
+                      res  <- httr::POST(url = url, query  = list(collName = label), 
+                                         httr::add_headers(JSESSIONID = self$JSESSIONID), 
+                                         encode = "form")
+                      msg  <- httr::content(res, as = "text")
+                      info <- jsonlite::fromJSON(msg)
+                      info
+                    },
+                    #' @description Delete a collection
+                    delete_collection = function(url = "https://transkribus.eu/TrpServer/rest/collections/{collection}", collection){
+                      qry  <- glue(url)
+                      res  <- httr::DELETE(url = qry, httr::add_headers(JSESSIONID = self$JSESSIONID))
+                      msg  <- httr::content(res, as = "text")
+                      invisible(msg)
+                    },
+                    
                     #' @description List the content (the pages) of a document
                     #' @param type character string with the type of extraction, either 'pages' or 'raw'. Defaults to 'pages'
                     list_document = function(url = "https://transkribus.eu/TrpServer/rest/collections/%s/%s/fulldoc", collection, document, type = c("pages", "raw")){

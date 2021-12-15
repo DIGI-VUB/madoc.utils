@@ -21,12 +21,13 @@ id_document   <- sample(documents$docId, size = 1)
 pages         <- api$list_document(collection = id_collection, document = id_document)
 pages
 
-## Upload some documents
+## Create a collection, upload some images to the collection, delete it again
+id  <- api$create_collection(label = "example-collection")
 img <- c(system.file(package = "madoc.utils", "extdata", "alto-example.jpg"),
          system.file(package = "madoc.utils", "extdata", "example.png"))
-subset(collections, colName == "test")$colId
-api$upload(data = img, collection = subset(collections, colName == "test")$colId, 
-           title = paste("Upload", Sys.time()), author = "R-API")
+api$upload(data = img, collection = id, title = paste("Upload", Sys.time()), author = "R-API")
+api$list_collection(collection = id)           
+api$delete_collection(collection = id)
 
 ## Look at relevant models and dictionaries
 dicts    <- api$list_dictionaries()
@@ -47,6 +48,12 @@ jobs
 
 
 \dontrun{
+id  <- api$create_collection(label = "test-collection")
+img <- c(system.file(package = "madoc.utils", "extdata", "example.png"),
+         system.file(package = "madoc.utils", "extdata", "alto-example.jpg"))
+api$upload(data = img, collection = id, title = "Doc with 2 images", author = "R-API")
+api$delete_collection(collection = id)
+
 ##
 ## This section shows how to transcribe using the API
 ##    >> note that this consumes Transkribus credits
@@ -54,13 +61,14 @@ jobs
 ##
 ## Inspect one image and transcribe it
 ##
-##  - id_collection <- 123580 ## test collection
-##  - id_document   <- 817369 ## test document in that test collection
 ##  - id_model      <- 21683  ## Dutch Mountains HTR+
-pages         <- api$list_document(collection = 123580, document = 817369)
+id_collection <- id
+id_document   <- docs$docId
+docs          <- api$list_collection(collection = id_collection)
+pages         <- api$list_document(collection = id_collection, document = id_document)
 page          <- head(pages, n = 1)
-id_job        <- api$transcribe(collection = 123580, document = 817369, 
-                                page = page$pageId,
+id_job        <- api$transcribe(collection = id_collection, document = id_document, 
+                                page = 1,
                                 model = 21683, 
                                 dictionary = "Combined_Dutch_Model_M1.dict")
 x             <- read_pagexml(page$page_xml) 
@@ -106,6 +114,8 @@ image_resize(bl, "x900")
 \item \href{#method-new}{\code{Transkribus$new()}}
 \item \href{#method-list_collections}{\code{Transkribus$list_collections()}}
 \item \href{#method-list_collection}{\code{Transkribus$list_collection()}}
+\item \href{#method-create_collection}{\code{Transkribus$create_collection()}}
+\item \href{#method-delete_collection}{\code{Transkribus$delete_collection()}}
 \item \href{#method-list_document}{\code{Transkribus$list_document()}}
 \item \href{#method-list_dictionaries}{\code{Transkribus$list_dictionaries()}}
 \item \href{#method-list_models}{\code{Transkribus$list_models()}}
@@ -167,6 +177,50 @@ List the content (the documents) of a collection
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Transkribus$list_collection(
   url = "https://transkribus.eu/TrpServer/rest/collections/\%s/list",
+  collection
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{url}}{character string with the url to use in the call to the Transkribus API}
+
+\item{\code{collection}}{id of the collection}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-create_collection"></a>}}
+\if{latex}{\out{\hypertarget{method-create_collection}{}}}
+\subsection{Method \code{create_collection()}}{
+Create a collection
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Transkribus$create_collection(
+  url = "https://transkribus.eu/TrpServer/rest/collections/createCollection",
+  label
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{url}}{character string with the url to use in the call to the Transkribus API}
+
+\item{\code{label}}{character string with the name of the collection to create}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-delete_collection"></a>}}
+\if{latex}{\out{\hypertarget{method-delete_collection}{}}}
+\subsection{Method \code{delete_collection()}}{
+Delete a collection
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Transkribus$delete_collection(
+  url = "https://transkribus.eu/TrpServer/rest/collections/{collection}",
   collection
 )}\if{html}{\out{</div>}}
 }
