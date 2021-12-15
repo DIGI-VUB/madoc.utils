@@ -6,20 +6,6 @@
 \description{
 Connect to Transkribus, inspect collections, documents, pages, perform handwritten text recognition
 }
-\section{Methods}{
-
-\describe{
-  \item{\code{login(url, user, password)}}
-  \item{\code{list_collections(url)}}
-  \item{\code{list_collection(url, collection)}}
-  \item{\code{list_document(url, collection, document)}}
-  \item{\code{list_dictionaries(url)}}
-  \item{\code{list_models(url, collection)}}
-  \item{\code{list_jobs(url)}}
-  \item{\code{transcribe(url, collection, document, page, model, dictionary)}}
-}
-}
-
 \examples{
 library(madoc.utils)
 api <- Transkribus$new(user     = "jan.wijffels@vub.ac.be", 
@@ -34,6 +20,13 @@ documents
 id_document   <- sample(documents$docId, size = 1)
 pages         <- api$list_document(collection = id_collection, document = id_document)
 pages
+
+## Upload some documents
+img <- c(system.file(package = "madoc.utils", "extdata", "alto-example.jpg"),
+         system.file(package = "madoc.utils", "extdata", "example.png"))
+subset(collections, colName == "test")$colId
+api$upload(data = img, collection = subset(collections, colName == "test")$colId, 
+           title = paste("Upload", Sys.time()), author = "R-API")
 
 ## Look at relevant models and dictionaries
 dicts    <- api$list_dictionaries()
@@ -118,6 +111,7 @@ image_resize(bl, "x900")
 \item \href{#method-list_models}{\code{Transkribus$list_models()}}
 \item \href{#method-list_job}{\code{Transkribus$list_job()}}
 \item \href{#method-transcribe}{\code{Transkribus$transcribe()}}
+\item \href{#method-upload}{\code{Transkribus$upload()}}
 \item \href{#method-clone}{\code{Transkribus$clone()}}
 }
 }
@@ -309,6 +303,41 @@ Transcribe a set of pages with a model
 \item{\code{model}}{id of the Transkribus model to use}
 
 \item{\code{dictionary}}{character string with the dictionary (set of letters) to use}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-upload"></a>}}
+\if{latex}{\out{\hypertarget{method-upload}{}}}
+\subsection{Method \code{upload()}}{
+Upload a set of images in a collection
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Transkribus$upload(
+  url = c("https://transkribus.eu/TrpServer/rest/uploads?collId={collection}",
+    "https://transkribus.eu/TrpServer/rest/uploads/{uploadId}"),
+  collection,
+  data,
+  title,
+  author = "R-API",
+  trace = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{url}}{character string with the url to use in the call to the Transkribus API}
+
+\item{\code{collection}}{id of the collection}
+
+\item{\code{data}}{a character vector with the full path(s) to the image files on disk}
+
+\item{\code{title}}{the title of the document}
+
+\item{\code{author}}{the author of the document}
+
+\item{\code{trace}}{logical indicating to show progress}
 }
 \if{html}{\out{</div>}}
 }

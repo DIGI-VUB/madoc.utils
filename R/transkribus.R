@@ -8,17 +8,6 @@
 #' @param url character string with the url to use in the call to the Transkribus API
 #' @param collection id of the collection
 #' @param document id of the document
-#' @section Methods:
-#' \describe{
-#'   \item{\code{login(url, user, password)}}
-#'   \item{\code{list_collections(url)}}
-#'   \item{\code{list_collection(url, collection)}}
-#'   \item{\code{list_document(url, collection, document)}}
-#'   \item{\code{list_dictionaries(url)}}
-#'   \item{\code{list_models(url, collection)}}
-#'   \item{\code{list_jobs(url)}}
-#'   \item{\code{transcribe(url, collection, document, page, model, dictionary)}}
-#' }
 #' @export
 #' @examples 
 #' library(madoc.utils)
@@ -34,6 +23,13 @@
 #' id_document   <- sample(documents$docId, size = 1)
 #' pages         <- api$list_document(collection = id_collection, document = id_document)
 #' pages
+#' 
+#' ## Upload some documents
+#' img <- c(system.file(package = "madoc.utils", "extdata", "alto-example.jpg"),
+#'          system.file(package = "madoc.utils", "extdata", "example.png"))
+#' subset(collections, colName == "test")$colId
+#' api$upload(data = img, collection = subset(collections, colName == "test")$colId, 
+#'            title = paste("Upload", Sys.time()), author = "R-API")
 #' 
 #' ## Look at relevant models and dictionaries
 #' dicts    <- api$list_dictionaries()
@@ -212,6 +208,52 @@ Transkribus <- R6Class("Transkribus",
                       res  <- httr::POST(url = qry, httr::add_headers(JSESSIONID = self$JSESSIONID))
                       msg  <- httr::content(res, as = "text")
                       msg
+                    },
+                    #' @description Upload a set of images in a collection
+                    #' @param data a character vector with the full path(s) to the image files on disk
+                    #' @param title the title of the document
+                    #' @param author the author of the document
+                    #' @param trace logical indicating to show progress
+                    upload = function(url = c("https://transkribus.eu/TrpServer/rest/uploads?collId={collection}",
+                                              "https://transkribus.eu/TrpServer/rest/uploads/{uploadId}"),
+                                      collection, 
+                                      data, 
+                                      title, 
+                                      author = "R-API", 
+                                      trace = TRUE){
+                      # From the Transkribus documentation
+                      #The Content-Type of each request has to be multipart/form-data and it must include the complete data for one page, i.e. if a pageXmlName was set in the given structure object, then the image as well as the XML have to be delivered. It depends on the used library whether the Content-Type has to be set explicitly. Please refer to the respective documentation on multipart requests.
+                      #The body part names to be used are img and xml respectively and both should be sent as application/octet-stream.
+                      qry   <- glue(url[1])
+                      stopifnot(all(file.exists(data)))
+                      pages       <- list(md       = list(title = title, author = author),
+                                          pageList = list(pages = data.frame(fileName = basename(data), 
+                                                                             pageNr   = seq_along(data), 
+                                                                             stringsAsFactors = FALSE)))
+                      pages_json  <- jsonlite::toJSON(pages, pretty = T, auto_unbox = T)
+                      res         <- httr::POST(url = qry, 
+                                                body = pages_json,
+                                                httr::content_type_json(),
+                                                httr::add_headers(JSESSIONID = self$JSESSIONID), 
+                                                encode = "raw")
+                      msg          <- httr::content(res, as = "text")
+                      req          <- jsonlite::fromJSON(msg)
+                      uploadId     <- req$uploadId
+                      qry_upload   <- glue(url[2])
+                      for(i in seq_along(data)){
+                        pa      <- data[i]
+                        if(trace){
+                          cat(sprintf("%s uploading to %s file %s", Sys.time(), qry_upload, pa), sep = "\n")
+                        }
+                        p       <- httr::upload_file(path = pa)
+                        req_put <- httr::PUT(url = qry_upload, 
+                                             body = list(img = p, page = i),
+                                             httr::add_headers(JSESSIONID = self$JSESSIONID),
+                                             encode = "multipart")
+                        msg  <- httr::content(req_put, as = "text")
+                      }
+                      info <- jsonlite::fromJSON(msg)
+                      info
                     }
                   )
 )
