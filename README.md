@@ -30,7 +30,7 @@ msg <- api$create_collection(label = "test-collection")
 msg <- api$upload(collection       = "test-collection", document = "Example document", data = img)
 msg <- api$list_models(collection  = "test-collection")
 msg <- api$transcribe(collection   = "test-collection", document = "Example document", page = 1, model = "IJsberg", dictionary = "Combined_Dutch_Model_M1.dict")
-api$job(msg)
+api$list_job(job = msg)
 
 ## Get all documents in a collection, get pages of a document
 ## Once your job finished, import the PageXML file  
