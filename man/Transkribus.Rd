@@ -25,7 +25,7 @@ pages
 id  <- api$create_collection(label = "example-collection")
 img <- c(system.file(package = "madoc.utils", "extdata", "alto-example.jpg"),
          system.file(package = "madoc.utils", "extdata", "example.png"))
-api$upload(data = img, collection = id, title = paste("Upload", Sys.time()), author = "R-API")
+api$upload(data = img, collection = id, document = paste("Upload", Sys.time()), author = "R-API")
 api$list_collection(collection = id)           
 api$delete_collection(collection = id)
 
@@ -51,7 +51,7 @@ jobs
 id  <- api$create_collection(label = "test-collection")
 img <- c(system.file(package = "madoc.utils", "extdata", "example.png"),
          system.file(package = "madoc.utils", "extdata", "alto-example.jpg"))
-api$upload(data = img, collection = id, title = "Doc with 2 images", author = "R-API")
+api$upload(data = img, collection = id, document = "Doc with 2 images", author = "R-API")
 
 ##
 ## This section shows how to transcribe using the API
@@ -114,6 +114,7 @@ api$delete_collection(collection = id)
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{Transkribus$new()}}
+\item \href{#method-map_name_to_id}{\code{Transkribus$map_name_to_id()}}
 \item \href{#method-list_collections}{\code{Transkribus$list_collections()}}
 \item \href{#method-list_collection}{\code{Transkribus$list_collection()}}
 \item \href{#method-create_collection}{\code{Transkribus$create_collection()}}
@@ -148,6 +149,31 @@ Log in with your Transkribus user and password
 \item{\code{user}}{character string with your Transkribus user in order to connect}
 
 \item{\code{password}}{character string with your Transkribus password in order to connect}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-map_name_to_id"></a>}}
+\if{latex}{\out{\hypertarget{method-map_name_to_id}{}}}
+\subsection{Method \code{map_name_to_id()}}{
+Map labels to identifiers
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Transkribus$map_name_to_id(
+  name,
+  type = c("collection", "document"),
+  collection
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{character string with the label to map to the identifier}
+
+\item{\code{type}}{type of mapping: either one of 'collection' of 'document'}
+
+\item{\code{collection}}{id of the collection}
 }
 \if{html}{\out{</div>}}
 }
@@ -374,7 +400,7 @@ Upload a set of images in a collection
     "https://transkribus.eu/TrpServer/rest/uploads/{uploadId}"),
   collection,
   data,
-  title,
+  document,
   author = "R-API",
   trace = TRUE
 )}\if{html}{\out{</div>}}
@@ -389,7 +415,7 @@ Upload a set of images in a collection
 
 \item{\code{data}}{a character vector with the full path(s) to the image files on disk}
 
-\item{\code{title}}{the title of the document}
+\item{\code{document}}{the title of the document}
 
 \item{\code{author}}{the author of the document}
 

@@ -28,7 +28,7 @@
 #' id  <- api$create_collection(label = "example-collection")
 #' img <- c(system.file(package = "madoc.utils", "extdata", "alto-example.jpg"),
 #'          system.file(package = "madoc.utils", "extdata", "example.png"))
-#' api$upload(data = img, collection = id, title = paste("Upload", Sys.time()), author = "R-API")
+#' api$upload(data = img, collection = id, document = paste("Upload", Sys.time()), author = "R-API")
 #' api$list_collection(collection = id)           
 #' api$delete_collection(collection = id)
 #' 
@@ -54,7 +54,7 @@
 #' id  <- api$create_collection(label = "test-collection")
 #' img <- c(system.file(package = "madoc.utils", "extdata", "example.png"),
 #'          system.file(package = "madoc.utils", "extdata", "alto-example.jpg"))
-#' api$upload(data = img, collection = id, title = "Doc with 2 images", author = "R-API")
+#' api$upload(data = img, collection = id, document = "Doc with 2 images", author = "R-API")
 #' 
 #' ##
 #' ## This section shows how to transcribe using the API
@@ -116,6 +116,9 @@ Transkribus <- R6Class("Transkribus",
                       self$JSESSIONID <- info$sessionId
                       invisible(info)
                     },
+                    #' @description Map labels to identifiers
+                    #' @param name character string with the label to map to the identifier
+                    #' @param type type of mapping: either one of 'collection' of 'document'
                     map_name_to_id = function(name, type = c("collection", "document"), collection){
                       if(!is.character(name)){
                         return(name)
@@ -261,14 +264,14 @@ Transkribus <- R6Class("Transkribus",
                     },
                     #' @description Upload a set of images in a collection
                     #' @param data a character vector with the full path(s) to the image files on disk
-                    #' @param title the title of the document
+                    #' @param document the title of the document
                     #' @param author the author of the document
                     #' @param trace logical indicating to show progress
                     upload = function(url = c("https://transkribus.eu/TrpServer/rest/uploads?collId={collection}",
                                               "https://transkribus.eu/TrpServer/rest/uploads/{uploadId}"),
                                       collection, 
                                       data, 
-                                      title, 
+                                      document, 
                                       author = "R-API", 
                                       trace = TRUE){
                       collection <- self$map_name_to_id(collection, type = "collection")
@@ -278,7 +281,7 @@ Transkribus <- R6Class("Transkribus",
                       #The body part names to be used are img and xml respectively and both should be sent as application/octet-stream.
                       qry   <- glue(url[1])
                       stopifnot(all(file.exists(data)))
-                      pages       <- list(md       = list(title = title, author = author),
+                      pages       <- list(md       = list(title = document, author = author),
                                           pageList = list(pages = data.frame(fileName = basename(data), 
                                                                              pageNr   = seq_along(data), 
                                                                              stringsAsFactors = FALSE)))

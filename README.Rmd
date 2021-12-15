@@ -37,7 +37,7 @@ api <- Transkribus$new(user = "jan.wijffels@vub.ac.be", password = Sys.getenv("T
 api$list_collections()
 ## create a new collection, upload 1 document with 2 image
 api$create_collection(label = "test-collection")
-api$upload(data = img, collection = "test-collection", title = "Example document", author = "R-API-example")
+api$upload(data = img, collection = "test-collection", document = "Example document")
 ## Transcribe one page using  Dutch Mountains HTR+ (model id 21683) + Inspect if your job is finished
 job <- api$transcribe(collection = "test-collection", document = "Example document", page = 1, 
                       model  = 21683, dictionary = "Combined_Dutch_Model_M1.dict")
