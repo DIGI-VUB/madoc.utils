@@ -27,8 +27,9 @@ api <- Transkribus$new(user = "jan.wijffels@vub.ac.be", password = Sys.getenv("T
 
 msg <- api$list_collections()
 msg <- api$create_collection(label = "test-collection")
-msg <- api$upload(collection     = "test-collection", document = "Example document")
-msg <- api$transcribe(collection = "test-collection", document = "Example document", page = 1, model  = 21683, dictionary = "Combined_Dutch_Model_M1.dict")
+msg <- api$upload(collection       = "test-collection", document = "Example document", data = img)
+msg <- api$list_models(collection  = "test-collection")
+msg <- api$transcribe(collection   = "test-collection", document = "Example document", page = 1, model  = 21683, dictionary = "Combined_Dutch_Model_M1.dict")
 api$job(msg)
 
 ## Get all documents in a collection, get pages of a document
