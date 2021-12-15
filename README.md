@@ -1,6 +1,8 @@
 # madoc.utils
 
-This repository contains an R package for extracting data from Madoc.
+This repository contains an R package for 
+  - extracting data from Madoc
+  - uploading images and transcribing images using the Transkribus API
 
 > ‘Madoc’ is an ‘Omeka S’ based platform for the display, enrichment,
 > and curation of digital objects in ‘IIIF’ format. The platform can be
@@ -12,7 +14,47 @@ This repository contains an R package for extracting data from Madoc.
 -   For installing the development version of this package:
     `remotes::install_github("DIGI-VUB/madoc.utils")`
 
-### Example
+### Example on Transkribus
+
+- Create a collection, upload a document, transcribe it
+
+``` r
+library(madoc.utils)
+library(magick)
+img <- c(system.file(package = "madoc.utils", "extdata", "example.png"),
+         system.file(package = "madoc.utils", "extdata", "alto-example.jpg"))
+image_read(img)
+
+## Connect using your user/password
+api <- Transkribus$new(user = "jan.wijffels@vub.ac.be", password = Sys.getenv("TRANSKRIBUS_PWD"))
+## Look which collections you have
+api$list_collections()
+## create a new collection, upload 1 document with 2 image
+api$create_collection(label = "test-collection")
+api$upload(data = img, collection = "test-collection", title = "Example document", author = "R-API-example")
+## Transcribe one page using  Dutch Mountains HTR+ (model id 21683) + Inspect if your job is finished
+job <- api$transcribe(collection = "test-collection", document = "Example document", page = 1, 
+                      model  = 21683, dictionary = "Combined_Dutch_Model_M1.dict")
+api$list_job(job = job)
+
+## list all documents part of the collection + get the pages of 1 document
+docs   <- api$list_collection(collection = "test-collection")
+pages  <- api$list_document(collection = "test-collection", document = "Example document")
+## Once your job finished, import the PageXML file 
+pages  <- head(pages, n = 1)
+x      <- read_pagexml(pages$page_xml) 
+View(x)
+img <- image_read(pages$url)
+img <- image_draw_baselines(img, x$baseline, lwd = 4, col = "darkgreen")
+image_resize(img, "800x")
+
+## Delete the collection if you want to remove all your work
+api$delete_collection(collection = "test-collection")
+```
+
+![](tools/img-example-2.png)
+
+### Example on Madoc
 
 -   Get transcriptions
 

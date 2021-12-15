@@ -55,7 +55,6 @@
 #' img <- c(system.file(package = "madoc.utils", "extdata", "example.png"),
 #'          system.file(package = "madoc.utils", "extdata", "alto-example.jpg"))
 #' api$upload(data = img, collection = id, title = "Doc with 2 images", author = "R-API")
-#' api$delete_collection(collection = id)
 #' 
 #' ##
 #' ## This section shows how to transcribe using the API
@@ -80,10 +79,11 @@
 #' ## A random document from a collection
 #' ##
 #' library(magick)
-#' page <- tail(pages, n = 1)
+#' pages  <- api$list_document(collection = id_collection, document = id_document)
+#' page   <- tail(pages, n = 1)
 #' page
-#' img  <- image_read(page$thumbUrl)
-#' img  <- image_read(page$url)
+#' img    <- image_read(page$thumbUrl)
+#' img    <- image_read(page$url)
 #' image_resize(img, "x600")
 #' id_job <- api$transcribe(collection = id_collection, document = id_document, page = page$pageNr, 
 #'                          model = id_model, dictionary = "Combined_Dutch_Model_M1.dict")
@@ -102,6 +102,8 @@
 #'                                   extend = FALSE, overview = FALSE)
 #' bl    <- image_rbind(bl, color = "red", geometry = "2x2")   
 #' image_resize(bl, "x900")
+#' 
+#' api$delete_collection(collection = id)
 #' }
 Transkribus <- R6Class("Transkribus",
                   public = list(
@@ -114,6 +116,21 @@ Transkribus <- R6Class("Transkribus",
                       self$JSESSIONID <- info$sessionId
                       invisible(info)
                     },
+                    map_name_to_id = function(name, type = c("collection", "document"), collection){
+                      if(!is.character(name)){
+                        return(name)
+                      }
+                      type <- match.arg(type)
+                      if(type == "collection"){
+                        mappings      <- self$list_collections() 
+                        id_collection <- head(mappings$colId[which(mappings$colName %in% name)], n = 1)
+                        id_collection
+                      }else if(type == "document"){
+                        mappings      <- self$list_collection(collection = collection) 
+                        id_document   <- head(mappings$docId[which(mappings$title %in% name)], n = 1)
+                        id_document
+                      }
+                    },
                     #' @description List all collections you have access to
                     list_collections = function(url = "https://transkribus.eu/TrpServer/rest/collections/list"){
                       res  <- httr::GET(url = url, httr::add_headers(JSESSIONID = self$JSESSIONID))
@@ -123,6 +140,7 @@ Transkribus <- R6Class("Transkribus",
                     },
                     #' @description List the content (the documents) of a collection
                     list_collection = function(url = "https://transkribus.eu/TrpServer/rest/collections/%s/list", collection){
+                      collection <- self$map_name_to_id(collection, type = "collection")
                       res  <- httr::GET(url = sprintf(url, collection), httr::add_headers(JSESSIONID = self$JSESSIONID))
                       msg  <- httr::content(res, as = "text")
                       info <- jsonlite::fromJSON(msg)
@@ -139,19 +157,21 @@ Transkribus <- R6Class("Transkribus",
                                          encode = "form")
                       msg  <- httr::content(res, as = "text")
                       info <- jsonlite::fromJSON(msg)
-                      info
+                      invisible(info)
                     },
                     #' @description Delete a collection
                     delete_collection = function(url = "https://transkribus.eu/TrpServer/rest/collections/{collection}", collection){
+                      collection <- self$map_name_to_id(collection, type = "collection")
                       qry  <- glue(url)
                       res  <- httr::DELETE(url = qry, httr::add_headers(JSESSIONID = self$JSESSIONID))
                       msg  <- httr::content(res, as = "text")
                       invisible(msg)
                     },
-                    
                     #' @description List the content (the pages) of a document
                     #' @param type character string with the type of extraction, either 'pages' or 'raw'. Defaults to 'pages'
                     list_document = function(url = "https://transkribus.eu/TrpServer/rest/collections/%s/%s/fulldoc", collection, document, type = c("pages", "raw")){
+                      collection <- self$map_name_to_id(collection, type = "collection")
+                      document   <- self$map_name_to_id(document, type = "document", collection = collection)
                       type <- match.arg(type)
                       res  <- httr::GET(url = sprintf(url, collection, document), httr::add_headers(JSESSIONID = self$JSESSIONID))
                       msg  <- httr::content(res, as = "text")
@@ -181,6 +201,7 @@ Transkribus <- R6Class("Transkribus",
                     },
                     #' @description Retrieve all HTR/OCR models you have access to within a collection
                     list_models = function(url = "https://transkribus.eu/TrpServer/rest/recognition/%s/list", collection){
+                      collection <- self$map_name_to_id(collection, type = "collection")
                       res  <- httr::GET(url = sprintf(url, collection), httr::add_headers(JSESSIONID = self$JSESSIONID), httr::timeout(5*60))
                       msg  <- httr::content(res, as = "text")
                       info <- jsonlite::fromJSON(msg)
@@ -219,6 +240,9 @@ Transkribus <- R6Class("Transkribus",
                                           page,
                                           model,
                                           dictionary){
+                      collection <- self$map_name_to_id(collection, type = "collection")
+                      document   <- self$map_name_to_id(document, type = "document", collection = collection)
+                      
                       if(missing(page)){
                         url <- gsub(url, pattern = "&pages=\\{page\\}", replacement = "")
                       }
@@ -233,7 +257,7 @@ Transkribus <- R6Class("Transkribus",
                       qry  <- glue(url)
                       res  <- httr::POST(url = qry, httr::add_headers(JSESSIONID = self$JSESSIONID))
                       msg  <- httr::content(res, as = "text")
-                      msg
+                      invisible(msg)
                     },
                     #' @description Upload a set of images in a collection
                     #' @param data a character vector with the full path(s) to the image files on disk
@@ -247,6 +271,8 @@ Transkribus <- R6Class("Transkribus",
                                       title, 
                                       author = "R-API", 
                                       trace = TRUE){
+                      collection <- self$map_name_to_id(collection, type = "collection")
+
                       # From the Transkribus documentation
                       #The Content-Type of each request has to be multipart/form-data and it must include the complete data for one page, i.e. if a pageXmlName was set in the given structure object, then the image as well as the XML have to be delivered. It depends on the used library whether the Content-Type has to be set explicitly. Please refer to the respective documentation on multipart requests.
                       #The body part names to be used are img and xml respectively and both should be sent as application/octet-stream.
@@ -279,7 +305,32 @@ Transkribus <- R6Class("Transkribus",
                         msg  <- httr::content(req_put, as = "text")
                       }
                       info <- jsonlite::fromJSON(msg)
-                      info
+                      invisible(info)
                     }
                   )
 )
+
+
+
+# @description Perform layout analysis on documents of a collection
+# layout = function(url = "https://transkribus.eu/TrpServer/rest/LA", collection){
+#   qry   <- glue(url)
+#   stopifnot(all(file.exists(data)))
+#   params <- list(collId = 129557, 
+#                  doBlockSeg = FALSE, 
+#                  doLineSeg = TRUE,
+#                  doPolygonToBaseline = FALSE, 
+#                  doPolygonToBaseline = FALSE)
+#   
+#   res         <- httr::POST(url = qry, 
+#                             body = pages_json,
+#                             httr::content_type_json(),
+#                             httr::add_headers(JSESSIONID = self$JSESSIONID), 
+#                             encode = "raw")
+#   httr::content(res, as = "text")
+#   
+#   res  <- httr::POST(url = sprintf(url, collection), httr::add_headers(JSESSIONID = self$JSESSIONID), httr::timeout(5*60))
+#   msg  <- httr::content(res, as = "text")
+#   info <- jsonlite::fromJSON(msg)
+#   info
+# },

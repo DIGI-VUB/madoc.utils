@@ -52,7 +52,6 @@ id  <- api$create_collection(label = "test-collection")
 img <- c(system.file(package = "madoc.utils", "extdata", "example.png"),
          system.file(package = "madoc.utils", "extdata", "alto-example.jpg"))
 api$upload(data = img, collection = id, title = "Doc with 2 images", author = "R-API")
-api$delete_collection(collection = id)
 
 ##
 ## This section shows how to transcribe using the API
@@ -77,10 +76,11 @@ x             <- read_pagexml(page$page_xml)
 ## A random document from a collection
 ##
 library(magick)
-page <- tail(pages, n = 1)
+pages  <- api$list_document(collection = id_collection, document = id_document)
+page   <- tail(pages, n = 1)
 page
-img  <- image_read(page$thumbUrl)
-img  <- image_read(page$url)
+img    <- image_read(page$thumbUrl)
+img    <- image_read(page$url)
 image_resize(img, "x600")
 id_job <- api$transcribe(collection = id_collection, document = id_document, page = page$pageNr, 
                          model = id_model, dictionary = "Combined_Dutch_Model_M1.dict")
@@ -99,6 +99,8 @@ bl    <- image_crop_baselineareas(img,
                                   extend = FALSE, overview = FALSE)
 bl    <- image_rbind(bl, color = "red", geometry = "2x2")   
 image_resize(bl, "x900")
+
+api$delete_collection(collection = id)
 }
 }
 \section{Public fields}{
