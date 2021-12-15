@@ -29,33 +29,26 @@ library(madoc.utils)
 library(magick)
 img <- c(system.file(package = "madoc.utils", "extdata", "example.png"),
          system.file(package = "madoc.utils", "extdata", "alto-example.jpg"))
-image_read(img)
-
-## Connect using your user/password
 api <- Transkribus$new(user = "jan.wijffels@vub.ac.be", password = Sys.getenv("TRANSKRIBUS_PWD"))
-## Look which collections you have
-api$list_collections()
-## create a new collection, upload 1 document with 2 image
-api$create_collection(label = "test-collection")
-api$upload(data = img, collection = "test-collection", document = "Example document")
-## Transcribe one page using  Dutch Mountains HTR+ (model id 21683) + Inspect if your job is finished
-job <- api$transcribe(collection = "test-collection", document = "Example document", page = 1, 
-                      model  = 21683, dictionary = "Combined_Dutch_Model_M1.dict")
-api$list_job(job = job)
 
-## list all documents part of the collection + get the pages of 1 document
-docs   <- api$list_collection(collection = "test-collection")
-pages  <- api$list_document(collection = "test-collection", document = "Example document")
-## Once your job finished, import the PageXML file 
-pages  <- head(pages, n = 1)
-x      <- read_pagexml(pages$page_xml) 
+msg <- api$list_collections()
+msg <- api$create_collection(label = "test-collection")
+msg <- api$upload(collection     = "test-collection", document = "Example document")
+msg <- api$transcribe(collection = "test-collection", document = "Example document", page = 1, model  = 21683, dictionary = "Combined_Dutch_Model_M1.dict")
+api$job(msg)
+
+## Get all documents in a collection, get pages of a document
+## Once your job finished, import the PageXML file  
+msg   <- api$list_collection(collection = "test-collection")
+msg   <- api$list_document(collection = "test-collection", document = "Example document")
+
+pages <- head(msg, n = 1)
+x     <- read_pagexml(pages$page_xml) 
 View(x)
-img <- image_read(pages$url)
-img <- image_draw_baselines(img, x$baseline, lwd = 4, col = "darkgreen")
-image_resize(img, "800x")
+image_read(pages$url)
 
-## Delete the collection if you want to remove all your work
-api$delete_collection(collection = "test-collection")
+## Delete the collection if no longer needed
+msg <- api$delete_collection(label = "test-collection")
 ```
 
 ![](tools/img-example-2.png)
