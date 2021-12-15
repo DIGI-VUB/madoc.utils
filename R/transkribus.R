@@ -119,7 +119,7 @@ Transkribus <- R6Class("Transkribus",
                     #' @description Map labels to identifiers
                     #' @param name character string with the label to map to the identifier
                     #' @param type type of mapping: either one of 'collection' of 'document'
-                    map_name_to_id = function(name, type = c("collection", "document"), collection){
+                    map_name_to_id = function(name, type = c("collection", "document", "htr-model"), collection){
                       if(!is.character(name)){
                         return(name)
                       }
@@ -132,6 +132,10 @@ Transkribus <- R6Class("Transkribus",
                         mappings      <- self$list_collection(collection = collection) 
                         id_document   <- head(mappings$docId[which(mappings$title %in% name)], n = 1)
                         id_document
+                      }else if(type == "htr-model"){
+                        mappings      <- self$list_models(collection = collection) 
+                        id_model      <- head(mappings$htrId[which(mappings$name %in% name)], n = 1)
+                        id_model
                       }
                     },
                     #' @description List all collections you have access to
@@ -245,6 +249,7 @@ Transkribus <- R6Class("Transkribus",
                                           dictionary){
                       collection <- self$map_name_to_id(collection, type = "collection")
                       document   <- self$map_name_to_id(document, type = "document", collection = collection)
+                      model      <- self$map_name_to_id(model, type = "htr-model", collection = collection)
                       
                       if(missing(page)){
                         url <- gsub(url, pattern = "&pages=\\{page\\}", replacement = "")
