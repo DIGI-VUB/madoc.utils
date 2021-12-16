@@ -314,31 +314,38 @@ Transkribus <- R6Class("Transkribus",
                       }
                       info <- jsonlite::fromJSON(msg)
                       invisible(info)
+                    },
+                    #' @description Perform layout analysis on all pages of a document in a collection
+                    #' @param doBlockSeg if TRUE, existing layout will be deleted, if FALSE keep existing text block regions
+                    #' @param doLineSeg if TRUE, detect lines in text blocks, if FALSE keep existing lines
+                    #' @param doPolygonToBaseline if TRUE, inspect line polygons and add baselines, if FALSE keep existing baselines
+                    #' @param doBaselineToPolygon if TRUE, extrapolate new line polygons from baselines, if FALSE do not extrapolate
+                    layout = function(url = "https://transkribus.eu/TrpServer/rest/LA?collId={collection}", collection, document,
+                                      doBlockSeg = FALSE, doLineSeg = TRUE, doPolygonToBaseline = FALSE, doBaselineToPolygon = FALSE){
+                      collection <- self$map_name_to_id(collection, type = "collection")
+                      document   <- self$map_name_to_id(document, type = "document", collection = collection)
+                      
+                      qry    <- glue(url)
+                      params <- list(
+                                     doBlockSeg = doBlockSeg,
+                                     doLineSeg = doLineSeg,
+                                     doPolygonToBaseline = doPolygonToBaseline,
+                                     doBaselineToPolygon = doBaselineToPolygon)
+                      pages       <- list(docList = list(docs = list(docId = document, pageList = list(pages = character()))))
+                      pages_json  <- jsonlite::toJSON(pages, pretty = T, auto_unbox = T)
+                      
+                      res         <- httr::POST(url = qry,
+                                                body = pages_json,
+                                                query = params,
+                                                httr::content_type_json(),
+                                                httr::add_headers(JSESSIONID = self$JSESSIONID),
+                                                encode = "raw")
+                      msg  <- httr::content(res, as = "text")
+                      info <- jsonlite::fromJSON(msg)
+                      info
                     }
                   )
 )
 
 
 
-# @description Perform layout analysis on documents of a collection
-# layout = function(url = "https://transkribus.eu/TrpServer/rest/LA", collection){
-#   qry   <- glue(url)
-#   stopifnot(all(file.exists(data)))
-#   params <- list(collId = 129557, 
-#                  doBlockSeg = FALSE, 
-#                  doLineSeg = TRUE,
-#                  doPolygonToBaseline = FALSE, 
-#                  doPolygonToBaseline = FALSE)
-#   
-#   res         <- httr::POST(url = qry, 
-#                             body = pages_json,
-#                             httr::content_type_json(),
-#                             httr::add_headers(JSESSIONID = self$JSESSIONID), 
-#                             encode = "raw")
-#   httr::content(res, as = "text")
-#   
-#   res  <- httr::POST(url = sprintf(url, collection), httr::add_headers(JSESSIONID = self$JSESSIONID), httr::timeout(5*60))
-#   msg  <- httr::content(res, as = "text")
-#   info <- jsonlite::fromJSON(msg)
-#   info
-# },

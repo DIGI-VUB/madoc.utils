@@ -125,6 +125,7 @@ api$delete_collection(collection = id)
 \item \href{#method-list_job}{\code{Transkribus$list_job()}}
 \item \href{#method-transcribe}{\code{Transkribus$transcribe()}}
 \item \href{#method-upload}{\code{Transkribus$upload()}}
+\item \href{#method-layout}{\code{Transkribus$layout()}}
 \item \href{#method-clone}{\code{Transkribus$clone()}}
 }
 }
@@ -161,7 +162,7 @@ Map labels to identifiers
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Transkribus$map_name_to_id(
   name,
-  type = c("collection", "document"),
+  type = c("collection", "document", "htr-model"),
   collection
 )}\if{html}{\out{</div>}}
 }
@@ -420,6 +421,43 @@ Upload a set of images in a collection
 \item{\code{author}}{the author of the document}
 
 \item{\code{trace}}{logical indicating to show progress}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-layout"></a>}}
+\if{latex}{\out{\hypertarget{method-layout}{}}}
+\subsection{Method \code{layout()}}{
+Perform layout analysis on all pages of a document in a collection
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Transkribus$layout(
+  url = "https://transkribus.eu/TrpServer/rest/LA?collId={collection}",
+  collection,
+  document,
+  doBlockSeg = FALSE,
+  doLineSeg = TRUE,
+  doPolygonToBaseline = FALSE,
+  doBaselineToPolygon = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{url}}{character string with the url to use in the call to the Transkribus API}
+
+\item{\code{collection}}{id of the collection}
+
+\item{\code{document}}{id of the document}
+
+\item{\code{doBlockSeg}}{if TRUE, existing layout will be deleted, if FALSE keep existing text block regions}
+
+\item{\code{doLineSeg}}{if TRUE, detect lines in text blocks, if FALSE keep existing lines}
+
+\item{\code{doPolygonToBaseline}}{if TRUE, inspect line polygons and add baselines, if FALSE keep existing baselines}
+
+\item{\code{doBaselineToPolygon}}{if TRUE, extrapolate new line polygons from baselines, if FALSE do not extrapolate}
 }
 \if{html}{\out{</div>}}
 }

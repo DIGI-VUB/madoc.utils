@@ -31,10 +31,11 @@ img <- c(system.file(package = "madoc.utils", "extdata", "example.png"),
          system.file(package = "madoc.utils", "extdata", "alto-example.jpg"))
 api <- Transkribus$new(user = "jan.wijffels@vub.ac.be", password = Sys.getenv("TRANSKRIBUS_PWD"))
 
-msg <- api$list_collections()
 msg <- api$create_collection(label = "test-collection")
-msg <- api$upload(collection       = "test-collection", document = "Example document", data = img)
+msg <- api$list_collections()
 msg <- api$list_models(collection  = "test-collection")
+msg <- api$upload(collection       = "test-collection", document = "Example document", data = img)
+msg <- api$layout(collection       = "test-collection", document = "Example document")
 msg <- api$transcribe(collection   = "test-collection", document = "Example document", page = 1, model = "IJsberg", dictionary = "Combined_Dutch_Model_M1.dict")
 api$list_job(job = msg)
 
