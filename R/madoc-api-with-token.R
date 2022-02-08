@@ -14,10 +14,14 @@
 #' x
 madoc_login <- function(site, email, password){
   sitename <- tail(unlist(strsplit(site, "/")), n = 1)
-  msg      <- httr::POST(url    = sprintf("%s/madoc/login", site), 
+  msg      <- httr::POST(url    = sprintf("%s/login", site), 
                          body   = list(email = email, password = password, submit = "Log+in", redir = ""), 
                          encode = "form")
   info     <- httr::cookies(msg)
+  if(nrow(info) == 0){
+    print(httr::content(msg))
+    stop("No cookies")
+  }
   token    <- info[which(grepl(pattern = sprintf("/%s$", sitename), info$path)), ]
   token    <- token[which(grepl(pattern = sprintf("/%s$", sitename), token$name)), ]
   .madoc$token       <- token$value
