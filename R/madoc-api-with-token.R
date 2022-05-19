@@ -32,24 +32,69 @@ madoc_login <- function(site, email, password){
 
 #' @title Get the list of Madoc users
 #' @description Get the list of Madoc users. This requires logging in using \code{\link{madoc_login}}
+#' @param type character string, either site or global indicating to get users of your site or users of the whole madoc instance. Defaults to 'site'
 #' @export
-#' @return a data.frame with the Madoc users with columns id, name, role, site_role, email
+#' @return in case type is
+#' \itemize{
+#' \item{type = \code{'site'}: a data.frame with the Madoc users with columns id, name, role, site_role, email}
+#' \item{type = \code{'global'}: a data.frame with the Madoc users with columns id, name, email, role, is_active, modified, created}
+#' }
 #' @examples 
 #' madoc_login("https://www.madoc.ugent.be/s/brugse-vrije", 
 #'             email = "jan.wijffels@vub.be", password = Sys.getenv("MADOC_PWD"))
-#' x <- madoc_users()
-madoc_users <- function(){
-  url <- "https://www.madoc.ugent.be/api/madoc/manage-site/users"
-  url <- sprintf("%s/api/madoc/manage-site/users", .madoc$url)
-  msg      <- httr::GET(url, 
-                        .madoc$tokenheader,
-                        encode = "json")
+#' x <- madoc_users(type = "site")
+#' x <- madoc_users(type = "global")
+madoc_users <- function(type = c("site", "global")){
+  type <- match.arg(type)
+  if(type == "site"){
+    url <- "https://www.madoc.ugent.be/api/madoc/manage-site/users"
+    url <- sprintf("%s/api/madoc/manage-site/users", .madoc$url)
+    msg      <- httr::GET(url, 
+                          .madoc$tokenheader,
+                          encode = "json")
+    response <- httr::content(msg, as = "text")
+    info     <- jsonlite::fromJSON(response)
+    
+    info     <- info$users
+    info$madoc_id <- paste("urn:madoc:user:", info$id, sep = "")
+    info  
+  }else if(type == "global"){
+    info <- list()
+    page <- 1
+    page_max <- +Inf
+    while(page <= page_max){
+      msg         <- httr::GET(sprintf("%s/api/madoc/users", .madoc$url), .madoc$tokenheader, encode = "json", query = list(page = page))
+      response    <- httr::content(msg, as = "text")
+      pagination  <- jsonlite::fromJSON(response)$pagination
+      page_max    <- pagination$totalPages
+      page        <- pagination$page + 1
+      info[[page]] <- jsonlite::fromJSON(response)$users
+    }
+    info  <- data.table::rbindlist(info, fill = TRUE, use.names = TRUE)
+    info  <- data.table::setDF(info)
+    info
+  }
+}
+
+
+#' @title Delete a user from Madoc
+#' @description Delete a user from Madoc
+#' @param id id of the user
+#' @export
+#' @return the result of the DELETE call
+#' @examples 
+#' \dontrun{
+#' madoc_login("https://www.madoc.ugent.be/s/brugse-vrije", 
+#'             email = "jan.wijffels@vub.be", password = Sys.getenv("MADOC_PWD"))
+#' madoc_delete_user(id = -1)
+#' }
+madoc_delete_user <- function(id){
+  stopifnot(length(id) == 1)
+  id       <- as.character(id)
+  url      <- sprintf("%s/api/madoc/users/%s", .madoc$url, id)
+  msg      <- httr::DELETE(url, .madoc$tokenheader, encode = "json")
   response <- httr::content(msg, as = "text")
-  info     <- jsonlite::fromJSON(response)
-  
-  info     <- info$users
-  info$madoc_id <- paste("urn:madoc:user:", info$id, sep = "")
-  info
+  response
 }
 
 

@@ -4,10 +4,17 @@
 \alias{madoc_users}
 \title{Get the list of Madoc users}
 \usage{
-madoc_users()
+madoc_users(type = c("site", "global"))
+}
+\arguments{
+\item{type}{character string, either site or global indicating to get users of your site or users of the whole madoc instance. Defaults to 'site'}
 }
 \value{
-a data.frame with the Madoc users with columns id, name, role, site_role, email
+in case type is
+\itemize{
+\item{type = \code{'site'}: a data.frame with the Madoc users with columns id, name, role, site_role, email}
+\item{type = \code{'global'}: a data.frame with the Madoc users with columns id, name, email, role, is_active, modified, created}
+}
 }
 \description{
 Get the list of Madoc users. This requires logging in using \code{\link{madoc_login}}
@@ -15,5 +22,6 @@ Get the list of Madoc users. This requires logging in using \code{\link{madoc_lo
 \examples{
 madoc_login("https://www.madoc.ugent.be/s/brugse-vrije", 
             email = "jan.wijffels@vub.be", password = Sys.getenv("MADOC_PWD"))
-x <- madoc_users()
+x <- madoc_users(type = "site")
+x <- madoc_users(type = "global")
 }
