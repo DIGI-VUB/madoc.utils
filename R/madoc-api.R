@@ -59,6 +59,9 @@ madoc_collection <- function(site, id, tidy_metadata = FALSE){
                                 if(length(out) == 0){
                                   out <- list(key = character(), value = character())
                                 }
+                                if(is.null(out$value)){
+                                  out$value <- NA
+                                }
                                 out
                               })
                               metadata <- rbindlist(metadata)
